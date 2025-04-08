@@ -12,11 +12,11 @@
 plot_cn <- function(karyoSim, final_g = TRUE) {
 
   # check user input
-  if(!class(karyoSim) %in% c("karyoSim", "karyoSimParallel", "karyoSim_simple", "karyoSimParallel_simple")) {
+  if(!any(class(karyoSim) %in% c("karyoSim", "karyoSimParallel", "karyoSim_simple", "karyoSimParallel_simple"))) {
     stop("An object of class karyoSim or karyoSimParallel is required.")
   }
 
-  if(class(karyoSim) %in% c("karyoSim_simple", "karyoSimParallel_simple")) {
+  if(any(class(karyoSim) %in% c("karyoSim_simple", "karyoSimParallel_simple"))) {
     plot_cn_simple(karyoSim)
   } else {
 

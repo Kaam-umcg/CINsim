@@ -3,7 +3,7 @@
 #' This function will enable parallel simulations to be run to quickly generate replicates for particular conditions.
 #'
 #' @param iterations The number of replicate iterations to generate.
-#' @param num_free_cpu The number of CPUs to keep available during processing.
+#' @param cores Amount of cores that are to be assigned to CINsim. Defaults to 2.
 #' @param karyotypes A single matrix or list of matrices with cells in rows and chromosomes in colums. Rows and colums must be labelled appropriately.
 #' @param euploid_ref The euploid chromosome copy number (used for calculating levels of aneuploidy).
 #' @param g The maximum number of generations to be simulated.
@@ -34,7 +34,7 @@
 #' @export
 
 parallelCinsim <- function(iterations = 6,
-                           num_free_cpu = 1,
+                           cores = 2,
                            karyotypes = NULL,
                            euploid_ref = 2,
                            g = 12,
@@ -107,16 +107,8 @@ parallelCinsim <- function(iterations = 6,
     qMods <- rep(list(qMods), iterations)
   }
 
-  # check number of cores to use - only use as many as required, otherwise max available
-  num_cores_available <- detectCores()
-  if(num_cores_available > iterations) {
-    num_cores <- iterations
-  } else {
-    num_cores <- num_cores_available - num_free_cpu
-  }
-
   # set-up multi-cores
-  cl <- snow::makeCluster(num_cores)
+  cl <- snow::makeCluster(cores)
   doSNOW::registerDoSNOW(cl)
 
   # progress bar

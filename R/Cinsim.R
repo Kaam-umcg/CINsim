@@ -110,7 +110,9 @@ Cinsim <- function(karyotypes = NULL,
       asynch <- TRUE
     }
   }
-
+  
+  # This feels very prone to bugs, as the conditionals
+  # don't cover every case perfectly.
   # check whether qMods are defined
   if(!is.null(qMods)) {
     if(is.null(names(qMods))) {

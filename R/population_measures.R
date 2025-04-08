@@ -58,7 +58,6 @@ population_measures <- function(karyotypes = NULL, euploid_ref = 2, g = NULL) {
 
   # return karyotype measures
   return(pop_measures)
-
 }
 
 

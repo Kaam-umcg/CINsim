@@ -3,7 +3,7 @@
 # CINsim
 
 ## Installation
-To install, use `devtools::install_github("bbakker1989/CINsim")`. Alternatively, download the repository into a folder, and install directly within the console.
+To install, use `devtools::install_github("Kaam-umcg/CINsim")`. Alternatively, download the repository into a folder, and install directly within the console.
 
 ## CINsim wrapper function
 The main wrapper function in this package is `Cinsim()`, which can take many (optional) parameters as input. They are outlined below.
