@@ -7,15 +7,16 @@
 #' @param karyotypes A single matrix or list of matrices with cells in rows and chromosomes in colums. Rows and colums must be labelled appropriately.
 #' @param euploid_ref The euploid chromosome copy number (used for calculating levels of aneuploidy).
 #' @param g The maximum number of generations to be simulated.
-#' @param pMisseg The mis-segregation probability per chromosome copy. Can be multiple to loop over simulataneously.
+#' @param pMisseg The mis-segregation probability per chromosome copy. Can be multiple to loop over.
 #' @param pWGD The probability of a cell undergoing whole-genome duplication instead of a normal mitosis
-#' @param pMissegG A vector of generation numbers during which pMisseg is set at the desired values. Will otherwise default to 0.
+#' @param pMissegG A vector of generation numbers during which pMisseg is set at the desired values. Will otherwise be consistent.
 #' @param fit_misseg A logical whether pMisseg should be fitness-dependent.
 #' @param pDivision The base probability of cell division.
 #' @param fit_division A logical whether pDivision should be karyotype (i.e. fitness) dependent.
 #' @param copy_num_boundaries A minimum and maximum number of copy numbers allowed per chromosome before a cell is deemed unviable.
 #' @param selection_mode One of three possible modes, "cn_based", "rel_copy", "davoli", for copy number-based, relative copy numbed-based or Davoli-based selection.
-#' @param selection_metric A fitness metric for the cn_based, rel_copy or davoli selection measure.
+#' @param selection_metric A fitness metric for the cn_based, rel_copy or davoli selection measure. Usually the observed karyotype frequencies from your data
+#' @param coef coefficients for alternative values of pMisseg, pSurvival & pDivision. Can be created by the (make_cinsim_coefficients) function
 #' @param chrom_weights An optional vector of chromosome weights to affect cellular fitness.
 #' @param qMods A single vector or list of vectors of length 3 to modify the calculated values for pDivison, pMisseg and pSurvival respectively.
 #' @param max_monosomy The minimum number of monosomies that will cause the cell to die.
@@ -30,7 +31,7 @@
 #' @import doParallel
 #' @import doSNOW
 #' @import foreach
-#' @author Bjorn Bakker
+#' @author Bjorn Bakker, Alex van Kaam
 #' @export
 
 parallelCinsim <- function(iterations = 6,
@@ -48,11 +49,6 @@ parallelCinsim <- function(iterations = 6,
                            selection_mode = NULL,
                            selection_metric = NULL,
                            coef = NULL,
-                           min_survival_euploid = 0.9,
-                           max_survival_euploid = 0.9,
-                           max_survival = 1,
-                           interval = 0.1,
-                           probability_types = c("pSurvival"),
                            chrom_weights = NULL,
                            qMods = NULL,
                            max_monosomy = NULL,
