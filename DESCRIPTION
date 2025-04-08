@@ -2,8 +2,8 @@ Package: CINsim
 Type: Package
 Title: Chromosomal Instability Simulator
 Version: 1.0.0
-Author: Bjorn Bakker <bjornbakker1989@gmail.com>
-Maintainer: Bjorn Bakker <bjornbakker1989@gmail.com>
+Author: Bjorn Bakker & Alex van Kaam <bjornbakker1989@gmail.com> , <a.t.van.kaam@umcg.nl>
+Maintainer: Alex van Kaam <a.t.van.kaam@umcg.nl>
 Description: Simulation of chromosomal instability in an evolutionary setting.
 Imports: 
     ggplot2,
