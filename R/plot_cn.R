@@ -5,7 +5,7 @@
 #' @param karyoSim A karyoSim or karyoSimParallel object.
 #' @param final_g A logical whether to plot the CN frequencies at the final generation.
 #' @return A plot of copy number frequencies.
-#' @author Bjorn Bakker
+#' @author Bjorn Bakker & Alex van Kaam
 #' @import tidyverse
 #' @export
 
@@ -22,6 +22,7 @@ plot_cn <- function(karyoSim, final_g = TRUE) {
 
     # compile tidysim if necessary
     if(class(karyoSim) %in% c("karyoSimParallel")) {
+      n_samples <- length(karyoSim)
       karyoSim <- compile_karyoSimParallel(karyoSim, for_summary = FALSE)
       summarize <- TRUE
     } else {
@@ -42,12 +43,12 @@ plot_cn <- function(karyoSim, final_g = TRUE) {
           ungroup() %>%
           unnest(cn_freq)
 
-        # summarize the data to get mean frequencies and sds
+        # summarize the data to get mean frequencies and SEM
         cn <- cn %>%
           mutate(copy = factor(copy)) %>%
           group_by(chromosome, copy) %>%
           summarize(mean_freq = mean(freq, na.rm = TRUE),
-                    sd_freq = sd(freq, na.rm = TRUE)) %>%
+                    sd_freq = sd(freq, na.rm = TRUE) / sqrt(n_samples)) %>%
           ungroup() %>%
           replace_na(list(mean_freq = 0,
                           sd_freq = 0)) %>%
@@ -66,7 +67,7 @@ plot_cn <- function(karyoSim, final_g = TRUE) {
                             col = copy), width = 0.5) +
           scale_y_continuous(breaks = seq(0, 1, 0.2)) +
           scale_fill_manual(values = copy_num_cols) +
-          scale_colour_manual(values = copy_num_cols, guide = FALSE) +
+          scale_colour_manual(values = copy_num_cols, guide = "none") +
           coord_cartesian(ylim = c(0, 1)) +
           labs(x = "Chromosome", y = "Frequency", fill = "Copy") +
           cinsim_theme()
@@ -107,7 +108,7 @@ plot_cn <- function(karyoSim, final_g = TRUE) {
           mutate(copy = factor(copy)) %>%
           group_by(g, chromosome, copy) %>%
           summarize(mean_freq = mean(freq, na.rm = TRUE),
-                    sd_freq = sd(freq, na.rm = TRUE)) %>%
+                    sd_freq = sd(freq, na.rm = TRUE) / sqrt(n_samples)) %>%
           ungroup() %>%
           replace_na(list(mean_freq = 0,
                           sd_freq = 0)) %>%
@@ -128,7 +129,7 @@ plot_cn <- function(karyoSim, final_g = TRUE) {
           facet_wrap(~chromosome) +
           scale_y_continuous(breaks = seq(0, 1, 0.2)) +
           scale_fill_manual(values = copy_num_cols) +
-          scale_colour_manual(values = copy_num_cols, guide = FALSE) +
+          scale_colour_manual(values = copy_num_cols, guide = "none") +
           coord_cartesian(ylim = c(0, 1)) +
           labs(x = "Generation", y = "Frequency", fill = "Copy") +
           cinsim_theme()
@@ -142,7 +143,7 @@ plot_cn <- function(karyoSim, final_g = TRUE) {
           geom_bar(aes(fill = copy), stat = "identity", width = 0.75) +
           facet_wrap(~chromosome) +
           scale_y_continuous(breaks = seq(0, 1, 0.2)) +
-          scale_fill_manual(values = copy_num_cols) +
+          scale_fill_manual(values = copy_num_cols, guide = "none") +
           coord_cartesian(ylim = c(0, 1)) +
           labs(x = "Generation", y = "Frequency", fill = "Copy") +
           cinsim_theme()
