@@ -243,7 +243,7 @@ Cinsim_simple <- function(karyotypes = NULL,
 #' This function will enable parallel simulations to be run to quickly generate replicates for particular conditions.
 #'
 #' @param iterations The number of replicate iterations to generate.
-#' @param num_free_cpu The number of CPUs to keep available during processing.
+#' @param cores The number of cores to use for the parallel simulations
 #' @param karyotypes A single matrix or list of matrices with cells in rows and chromosomes in colums. Rows and colums must be labelled appropriately.
 #' @param g The maximum number of generations to be simulated.
 #' @param pMisseg The mis-segregation probability per chromosome copy.
@@ -263,11 +263,11 @@ Cinsim_simple <- function(karyotypes = NULL,
 #' @import doParallel
 #' @import doSNOW
 #' @import foreach
-#' @author Bjorn Bakker
+#' @author Bjorn Bakker, Alex van Kaam
 #' @export
 
 parallelCinsim_simple <- function(iterations = 6,
-                                  num_free_cpu = 1,
+                                  cores = 2,
                                   karyotypes = NULL,
                                   g = 12,
                                   pMisseg = 0.0025,
@@ -327,13 +327,8 @@ parallelCinsim_simple <- function(iterations = 6,
     qMod <- rep(qMod, iterations)
   }
 
-  # check number of cores to use - only use as many as required, otherwise max available
-  num_cores_available <- detectCores()
-  if(num_cores_available > iterations) {
-    num_cores <- iterations
-  } else {
-    num_cores <- num_cores_available - num_free_cpu
-  }
+  # reassigns cores argument due to some legacy code fixing
+  num_cores <- cores
 
   # set-up multi-cores
   cl <- snow::makeCluster(num_cores)
