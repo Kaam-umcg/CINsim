@@ -25,7 +25,9 @@ Cinsim(
   down_sample = 50000,
   down_sample_frac = 0.25,
   max_num_cells = 2e+09,
-  collect_fitness_score = FALSE
+  collect_fitness_score = FALSE,
+  calc_CnFS = TRUE,
+  calc_KMS = FALSE
 )
 }
 \arguments{
@@ -70,6 +72,10 @@ Cinsim(
 \item{max_num_cells}{The maximum number of (theoretical) cells to simulate before the simulation is terminated.}
 
 \item{collect_fitness_score}{A logical whether to collect the fitness scores over time.}
+
+\item{calc_CnFS}{Boolean to indicate whether the CnFS should be calculated, defaults to TRUE}
+
+\item{calc_KMS}{Boolean to indicate whether the KMS should be calculated, defaults to FALSE}
 }
 \value{
 A karyoSim object containing all relevant information of the simulation.

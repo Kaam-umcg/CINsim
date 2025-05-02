@@ -23,6 +23,9 @@
 #' @param down_sample_frac The fraction of cells with which to continue the simulation after down-sampling.
 #' @param max_num_cells The maximum number of (theoretical) cells to simulate before the simulation is terminated.
 #' @param collect_fitness_score A logical whether to collect the fitness scores over time.
+#' @param CnFS Boolean to indicate whether the CnFS should be calculated, defaults to TRUE
+#' @param KMS Boolean to indicate whether the KMS should be calculated, defaults to FALSE
+#' @param final_aneu_het_scores The final population measures (heterogeneity & aneuploidy) required for calculating the KMS.
 #' @return A karyoSim object containing all relevant information of the simulation.
 #' @author Bjorn Bakker
 #' @export
@@ -47,7 +50,10 @@ Cinsim <- function(karyotypes = NULL,
                    down_sample = 5e+04,
                    down_sample_frac = 0.25,
                    max_num_cells = 2e+09,
-                   collect_fitness_score = FALSE) {
+                   collect_fitness_score = FALSE,
+                   CnFS = TRUE,
+                   KMS = FALSE,
+                   final_aneu_het_scores = NULL) {
 
   # start timed message
   message("==> Starting simulation <==")
@@ -82,6 +88,24 @@ Cinsim <- function(karyotypes = NULL,
                               num_survivors = nrow(karyotypes),
                               num_daughters = 0,
                               mean_num_chr = mean(rowSums(karyotypes)))
+  if(CnFS){
+    gen_measures[[1]] <- gen_measures[[1]] %>%
+      mutate(CnFS = calc_CnFS(karyotypes = karyotypes,
+                              selection_metric = selection_metric))
+  }else{
+    gen_measures[[1]] <- gen_measures[[1]] %>%
+      mutate(CnFS = "not calculated")
+  }
+  if(KMS){
+    KMS_val <- calc_KMS(karyotypes = karyotypes,
+                        pop_measures = final_aneu_het_scores)
+    gen_measures[[1]] <- gen_measures[[1]] %>%
+      mutate(KMS = KMS_val)
+  }else{
+    gen_measures[[1]] <- gen_measures[[1]] %>%
+      mutate(KMS = "not calculated")
+  }
+
   if(!is.null(selection_mode) & !is.null(selection_metric) & collect_fitness_score) {
     gen_measures[[1]] <- gen_measures[[1]] %>%
       mutate(mean_population_score = mean(get_score(karyotypes, selection_mode = selection_mode,
@@ -309,6 +333,32 @@ Cinsim <- function(karyotypes = NULL,
         true_cell_count <- num_surviving_cells
       }
 
+      # calculates the CnFS & KMS if flagged
+      if (CnFS){
+        if (is.null(selection_metric)){
+          message("Cannot calculate CnFS, as there is no selection metric -
+                  ensure your simulation has selection to calculate the CnFS")
+          break
+        }
+
+        CnFS_val <- calc_CnFS(karyotypes = karyotypes,
+                          selection_metric = selection_metric)
+      }else{
+        CnFS_val <- "not calculated"
+      }
+
+      if (KMS){
+        if (is.null(final_aneu_het_scores)){
+          message("A final_aneu_het_score wasn't provided, and the KMS can thus
+                  not be calculated - exiting the simulation")
+          break
+        }
+        KMS_val <- calc_KMS(karyotypes = karyotypes,
+                        pop_measures = final_aneu_het_scores)
+      }else{
+        KMS_val <- "not calculated"
+      }
+
       # collect and store variables
       pop_measures[[j+1]] <- population_measures(karyotypes = karyotypes,
                                                  euploid_ref = euploid_ref,
@@ -319,7 +369,9 @@ Cinsim <- function(karyotypes = NULL,
                                     fraction_surviving = num_surviving_cells/num_daughters,
                                     num_survivors = num_surviving_cells,
                                     num_daughters = num_daughters,
-                                    mean_num_chr = mean(rowSums(karyotypes)))
+                                    mean_num_chr = mean(rowSums(karyotypes)),
+                                    CnFS = CnFS_val,
+                                    KMS = KMS_val)
       if(!is.null(selection_mode) & !is.null(selection_metric) & collect_fitness_score) {
         gen_measures[[j+1]] <- gen_measures[[j+1]] %>%
           mutate(mean_population_score = mean(get_score(karyotypes,
