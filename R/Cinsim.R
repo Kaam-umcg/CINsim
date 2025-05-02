@@ -110,7 +110,7 @@ Cinsim <- function(karyotypes = NULL,
       asynch <- TRUE
     }
   }
-  
+
   # This feels very prone to bugs, as the conditionals
   # don't cover every case perfectly.
   # check whether qMods are defined
@@ -135,9 +135,9 @@ Cinsim <- function(karyotypes = NULL,
       coefs <- default_coefficients %>%
         filter(method == selection_mode) %>%
         select(a, b)
-      coef <- list(pDivision = c(a = coefs$a, b = coefs$b),
-                   pMisseg = c(a = coefs$a, b = coefs$b),
-                   pSurvival = c(a = coefs$a, b = coefs$b))
+      coef <- list(pDivision = c(coefs$a, coefs$b),
+                   pMisseg = c(coefs$a, coefs$b),
+                   pSurvival = c(coefs$a, coefs$b))
     } else {
       coef <- list(pDivision = c(a = 1, b = 1),
                    pMisseg = c(a = 1, b = 1),
@@ -275,12 +275,11 @@ Cinsim <- function(karyotypes = NULL,
                                        min_euploid = min_euploid,
                                        euploid_ref = euploid_ref,
                                        qMod = qMods["pSurvival"])
-
     # count the number of viable cells
     num_surviving_cells <- sum(viable_cells)
 
     # break loop if no surviving cells exist
-    if(num_surviving_cells == 0) {
+    if(num_surviving_cells == 0) { # this line is now bugged - what changed?
 
       message("No more surviving cells - exiting simulation")
       j <- j - 1

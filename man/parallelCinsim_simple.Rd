@@ -6,7 +6,7 @@
 \usage{
 parallelCinsim_simple(
   iterations = 6,
-  num_free_cpu = 1,
+  cores = 2,
   karyotypes = NULL,
   g = 12,
   pMisseg = 0.0025,
@@ -25,7 +25,7 @@ parallelCinsim_simple(
 \arguments{
 \item{iterations}{The number of replicate iterations to generate.}
 
-\item{num_free_cpu}{The number of CPUs to keep available during processing.}
+\item{cores}{The number of cores to use for the parallel simulations}
 
 \item{karyotypes}{A single matrix or list of matrices with cells in rows and chromosomes in colums. Rows and colums must be labelled appropriately.}
 
@@ -60,5 +60,5 @@ A \code{list} with karyoSim objects.
 This function will enable parallel simulations to be run to quickly generate replicates for particular conditions.
 }
 \author{
-Bjorn Bakker
+Bjorn Bakker, Alex van Kaam
 }

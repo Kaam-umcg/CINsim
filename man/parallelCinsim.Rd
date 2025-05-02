@@ -6,7 +6,7 @@
 \usage{
 parallelCinsim(
   iterations = 6,
-  num_free_cpu = 1,
+  cores = 2,
   karyotypes = NULL,
   euploid_ref = 2,
   g = 12,
@@ -20,11 +20,6 @@ parallelCinsim(
   selection_mode = NULL,
   selection_metric = NULL,
   coef = NULL,
-  min_survival_euploid = 0.9,
-  max_survival_euploid = 0.9,
-  max_survival = 1,
-  interval = 0.1,
-  probability_types = c("pSurvival"),
   chrom_weights = NULL,
   qMods = NULL,
   max_monosomy = NULL,
@@ -38,7 +33,7 @@ parallelCinsim(
 \arguments{
 \item{iterations}{The number of replicate iterations to generate.}
 
-\item{num_free_cpu}{The number of CPUs to keep available during processing.}
+\item{cores}{Amount of cores that are to be assigned to CINsim. Defaults to 2.}
 
 \item{karyotypes}{A single matrix or list of matrices with cells in rows and chromosomes in colums. Rows and colums must be labelled appropriately.}
 
@@ -46,11 +41,11 @@ parallelCinsim(
 
 \item{g}{The maximum number of generations to be simulated.}
 
-\item{pMisseg}{The mis-segregation probability per chromosome copy. Can be multiple to loop over simulataneously.}
+\item{pMisseg}{The mis-segregation probability per chromosome copy. Can be multiple to loop over.}
 
 \item{pWGD}{The probability of a cell undergoing whole-genome duplication instead of a normal mitosis}
 
-\item{pMissegG}{A vector of generation numbers during which pMisseg is set at the desired values. Will otherwise default to 0.}
+\item{pMissegG}{A vector of generation numbers during which pMisseg is set at the desired values. Will otherwise be consistent.}
 
 \item{fit_misseg}{A logical whether pMisseg should be fitness-dependent.}
 
@@ -62,7 +57,9 @@ parallelCinsim(
 
 \item{selection_mode}{One of three possible modes, "cn_based", "rel_copy", "davoli", for copy number-based, relative copy numbed-based or Davoli-based selection.}
 
-\item{selection_metric}{A fitness metric for the cn_based, rel_copy or davoli selection measure.}
+\item{selection_metric}{A fitness metric for the cn_based, rel_copy or davoli selection measure. Usually the observed karyotype frequencies from your data}
+
+\item{coef}{coefficients for alternative values of pMisseg, pSurvival & pDivision. Can be created by the (make_cinsim_coefficients) function}
 
 \item{chrom_weights}{An optional vector of chromosome weights to affect cellular fitness.}
 
@@ -87,5 +84,5 @@ A \code{list} with karyoSim objects.
 This function will enable parallel simulations to be run to quickly generate replicates for particular conditions.
 }
 \author{
-Bjorn Bakker
+Bjorn Bakker, Alex van Kaam
 }

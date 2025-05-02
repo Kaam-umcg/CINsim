@@ -18,5 +18,5 @@ A plot of copy number frequencies.
 This functions will plot the frequencie of copy numbers over time.
 }
 \author{
-Bjorn Bakker
+Bjorn Bakker & Alex van Kaam
 }
