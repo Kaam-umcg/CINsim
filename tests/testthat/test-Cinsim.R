@@ -1,0 +1,24 @@
+test_that("Empty inputs returns a Cinsim object", {
+  Cinsim_output <- Cinsim()
+  expect_equal(class(Cinsim_output), "karyoSim")
+})
+
+test_that("Adding selection mode doesn't error out", {
+  expect_no_error(Cinsim(selection_mode = "cn_based",
+                         selection_metric = CINsim::Mps1))
+  expect_no_error(Cinsim(selection_mode = "rel_copy",
+                         selection_metric = CINsim::Mps1))
+
+  # Davoli only works with human human genomes
+  # or maybe not? Need to investigate a little more
+  # before this just works
+  # expect_no_error(Cinsim(karyotypes = makeKaryotypes(species = "human",
+  #                                                    numCell = 10),
+  #                        selection_mode = "davoli",
+  #                        selection_metric = CINsim::human_neutral))
+})
+
+#
+# test_that("", {
+#
+# })
