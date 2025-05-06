@@ -28,7 +28,8 @@ Cinsim(
   collect_fitness_score = FALSE,
   CnFS = TRUE,
   KMS = FALSE,
-  final_aneu_het_scores = NULL
+  final_aneu_het_scores = NULL,
+  verbose = 1
 )
 }
 \arguments{
@@ -79,6 +80,8 @@ Cinsim(
 \item{KMS}{Boolean to indicate whether the KMS should be calculated, defaults to FALSE}
 
 \item{final_aneu_het_scores}{The final population measures (heterogeneity & aneuploidy) required for calculating the KMS.}
+
+\item{verbose}{Degree of verbosity of CINsim, 0 means no verbosity}
 }
 \value{
 A karyoSim object containing all relevant information of the simulation.

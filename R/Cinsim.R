@@ -26,6 +26,7 @@
 #' @param CnFS Boolean to indicate whether the CnFS should be calculated, defaults to TRUE
 #' @param KMS Boolean to indicate whether the KMS should be calculated, defaults to FALSE
 #' @param final_aneu_het_scores The final population measures (heterogeneity & aneuploidy) required for calculating the KMS.
+#' @param verbose Degree of verbosity of CINsim, 0 means no verbosity
 #' @return A karyoSim object containing all relevant information of the simulation.
 #' @author Bjorn Bakker
 #' @export
@@ -53,14 +54,17 @@ Cinsim <- function(karyotypes = NULL,
                    collect_fitness_score = FALSE,
                    CnFS = TRUE,
                    KMS = FALSE,
-                   final_aneu_het_scores = NULL) {
+                   final_aneu_het_scores = NULL,
+                   verbose = 1) {
 
-  # start timed message
-  message("==> Starting simulation <==")
-  time0 <- proc.time()
+  if (verbose >= 1){
+    # start timed message
+    message("==> Starting simulation <==")
+    time0 <- proc.time()
 
-  # start timed message
-  ptm <- startTimedMessage("Initializing simulation ...")
+    # start timed message
+    ptm <- startTimedMessage("Initializing simulation ...")
+  }
 
   # check user input for karyotypes
   if (is.null(karyotypes)) {
@@ -181,13 +185,17 @@ Cinsim <- function(karyotypes = NULL,
     max_num_cells <- "infinite"
   }
 
-  stopTimedMessage(ptm)
+  if (verbose >= 1){
+    stopTimedMessage(ptm)
+  }
 
   # run simulation for g number of generations
   for(j in 1:g) {
 
     # start timed message
-    ptm <- startTimedMessage("Processing generation ", j, " out of ", g, " ...")
+    if (verbose >= 1){
+      ptm <- startTimedMessage("Processing generation ", j, " out of ", g, " ...")
+    }
 
     # check whether pMisseg is still applicable
     if(!is.null(pMissegG)) {
@@ -400,8 +408,9 @@ Cinsim <- function(karyotypes = NULL,
                     mutate(g = j))
 
     }
-
-    stopTimedMessage(ptm)
+    if (verbose >= 1){
+      stopTimedMessage(ptm)
+    }
 
     # break if maximum number of cells is reached
     if(!is.null(max_num_cells)) {
@@ -414,7 +423,9 @@ Cinsim <- function(karyotypes = NULL,
   }
 
   # setting up timed message for parameter compiline
-  ptm <- startTimedMessage("Compiling all simulation parameters ...")
+  if (verbose >= 1){
+    ptm <- startTimedMessage("Compiling all simulation parameters ...")
+  }
 
   # sub-select all relevant information from generations
   pop_measures <- bind_rows(pop_measures[1:(j+1)])
@@ -455,10 +466,12 @@ Cinsim <- function(karyotypes = NULL,
   # set object class
   class(karyoSim) <- "karyoSim"
 
-  stopTimedMessage(ptm)
+  if (verbose >= 1){
+    stopTimedMessage(ptm)
 
-  time1 <- proc.time() - time0
-  message("==| Simulation complete - final time: ", round(time1[3], 2), "s |==")
+    time1 <- proc.time() - time0
+    message("==| Simulation complete - final time: ", round(time1[3], 2), "s |==")
+  }
 
   # return final output as karyoSim object
   return(karyoSim)

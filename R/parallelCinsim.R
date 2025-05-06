@@ -28,6 +28,7 @@
 #' @param CnFS Boolean to indicate whether the CnFS should be calculated, defaults to TRUE
 #' @param KMS Boolean to indicate whether the KMS should be calculated, defaults to FALSE
 #' @param final_aneu_het_scores The final population measures (heterogeneity & aneuploidy) required for calculating the KMS.
+#' @param verbose How verbose the outputs should be
 #' @return A \code{list} with karyoSim objects.
 #' @import tidyverse
 #' @import parallel
@@ -62,11 +63,14 @@ parallelCinsim <- function(iterations = 6,
                            collect_fitness_score = FALSE,
                            CnFS = TRUE,
                            KMS = FALSE,
-                           final_aneu_het_scores = NULL) {
+                           final_aneu_het_scores = NULL,
+                           verbose = 1) {
 
   # start timed message
-  message("==> Starting simulation(s) <==")
-  time0 <- proc.time()
+  if (verbose >= 1){
+    message("==> Starting simulation(s) <==")
+    time0 <- proc.time()
+  }
 
   # assess lengths of karyotypes, pmisseg and qMods in case of multiple values
   listable_value <- tibble(value = c("karyotypes", "pMisseg", "qMods"),
@@ -114,16 +118,20 @@ parallelCinsim <- function(iterations = 6,
   doSNOW::registerDoSNOW(cl)
 
   # progress bar
-  pb <- txtProgressBar(min = 0, max = iterations, initial = 0, style = 3)
-  progress <- function(n) { setTxtProgressBar(pb, n) }
-  opts <- list(progress = progress)
+  if (verbose >= 1){
+    pb <- txtProgressBar(min = 0, max = iterations, initial = 0, style = 3)
+    progress <- function(n) { setTxtProgressBar(pb, n) }
+    opts <- list(progress = progress)
+  }else{
+    opts <- NULL
+  }
 
   # generation list simulations
   simList <- foreach(iteration = 1:iterations,
                      .export = c("Cinsim"),
                      .options.snow = opts,
                      .packages = 'CINsim',
-                     #.verbose = TRUE,
+                     #.verbose = TRUE, # uncomment if debugging as a developer
                      .inorder = TRUE) %dopar% {
                        Cinsim(karyotypes = karyotypes[[iteration]],
                               euploid_ref = euploid_ref,
@@ -148,19 +156,24 @@ parallelCinsim <- function(iterations = 6,
                               collect_fitness_score = collect_fitness_score,
                               CnFS = CnFS,
                               KMS = KMS,
-                              final_aneu_het_scores = final_aneu_het_scores)
+                              final_aneu_het_scores = final_aneu_het_scores,
+                              verbose = verbose)
                      }
-
+  # only need to close if verbose was on
+  if (verbose >= 1){
+    close(pb)
+  }
   # stop clusters
-  close(pb)
   snow::stopCluster(cl)
   doParallel::stopImplicitCluster()
 
   # set simulation names
   names(simList) <- paste0("sim_", 1:iterations)
 
-  time1 <- proc.time() - time0
-  message("==| Simulation(s) complete - final time: ", round(time1[3], 2), "s |==")
+  if (verbose >= 1 ){
+    time1 <- proc.time() - time0
+    message("==| Simulation(s) complete - final time: ", round(time1[3], 2), "s |==")
+  }
 
   class(simList) <- "karyoSimParallel"
 
