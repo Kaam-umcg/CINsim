@@ -26,8 +26,9 @@ Cinsim(
   down_sample_frac = 0.25,
   max_num_cells = 2e+09,
   collect_fitness_score = FALSE,
-  calc_CnFS = TRUE,
-  calc_KMS = FALSE
+  CnFS = TRUE,
+  KMS = FALSE,
+  final_aneu_het_scores = NULL
 )
 }
 \arguments{
@@ -73,9 +74,11 @@ Cinsim(
 
 \item{collect_fitness_score}{A logical whether to collect the fitness scores over time.}
 
-\item{calc_CnFS}{Boolean to indicate whether the CnFS should be calculated, defaults to TRUE}
+\item{CnFS}{Boolean to indicate whether the CnFS should be calculated, defaults to TRUE}
 
-\item{calc_KMS}{Boolean to indicate whether the KMS should be calculated, defaults to FALSE}
+\item{KMS}{Boolean to indicate whether the KMS should be calculated, defaults to FALSE}
+
+\item{final_aneu_het_scores}{The final population measures (heterogeneity & aneuploidy) required for calculating the KMS.}
 }
 \value{
 A karyoSim object containing all relevant information of the simulation.

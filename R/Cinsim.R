@@ -434,7 +434,7 @@ Cinsim <- function(karyotypes = NULL,
                 fit_division = fit_division,
                 copy_num_boundaries_low = copy_num_boundaries[1],
                 copy_num_boundaries_high = copy_num_boundaries[2],
-                selection_mode = selection_mode,
+                selection_mode = selection_mode, # if selection_mode = NULL doesn't appear in object
                 max_monosomy = max_monosomy,
                 min_euploid = min_euploid,
                 down_sample = down_sample,

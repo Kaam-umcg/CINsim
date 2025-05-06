@@ -83,19 +83,49 @@ calc_CnFS <- function(karyotypes, selection_metric) {
 
   # gets the observed frequencies from the karyotypes
   freq_per_chrom <-  apply(karyotypes, 2, function(col) {
-    prop_table <- table(col, useNA = "ifany") / length(col)
+    prop_table <- table(col, useNA = "no") / length(col)
     return(prop_table)
   })
+  # if every chrom has a value for each CN we can skip the following steps
+  if (!((c("matrix") %in% class(freq_per_chrom) &
+      c("array") %in% class(freq_per_chrom)))){
+
+    # Ensure all CN values are represented
+    all_cn_values <- paste0(min(karyotypes):max(karyotypes))
+
+    # Create an empty matrix with all chromosomes and CN values
+    chromosomes_list <- names(freq_per_chrom)
+
+    if (is.null(chromosomes_list)){
+      chromosomes_list <- colnames(freq_per_chrom)
+    }
+    freq_matrix_full <- matrix(0, nrow = length(chromosomes_list), ncol = length(all_cn_values),
+                               dimnames = list(chromosomes_list,
+                                               paste0(min(as.integer(all_cn_values)):max(as.integer(all_cn_values)))))
+
+    # Fill in the matrix with the actual frequencies from the list of tables
+    for (i in 1:length(freq_per_chrom)) {
+      chrom_name <- names(freq_per_chrom)[i]
+      # same story for this conditional
+      if (is.null(chrom_name)){chrom_name <- colnames(freq_per_chrom)[i]}
+      chrom_data <- freq_per_chrom[[i]]
+
+      for (cn in names(chrom_data)) {
+        cn_index <- which(all_cn_values == cn)
+        freq_matrix_full[chrom_name, cn_index] <- chrom_data[cn]
+      }
+    }
+    freq_per_chrom <- t(freq_matrix_full)
+  }
 
   # calculates the CnFS (Copy number Frequency Score)
-  for (chrom in names(freq_per_chrom)){
+  for (chrom in colnames(selection_metric)){
     # early exit for X, since we skip that chrom for the CnFS
     if (chrom == "X"){next}
     for (cn in rownames(selection_metric)){
       # gets the frequency of a CN for a chromosome from the simulation
-      freq_sim <- freq_per_chrom[[chrom]] %>%
+      freq_sim <- freq_per_chrom[, chrom] %>%
         purrr::pluck(cn, .default = 0) # gives 0 if it doesn't exist/out of bounds
-
       # this value should always exist
       freq_obs <- selection_metric[cn, chrom]
 
@@ -107,6 +137,7 @@ calc_CnFS <- function(karyotypes, selection_metric) {
   }
   # calculates the final CnFS from the inverse
   CnFS <- 1 / inverse_CnFS
+
   return(CnFS)
 }
 

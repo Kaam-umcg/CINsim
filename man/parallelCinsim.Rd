@@ -27,7 +27,10 @@ parallelCinsim(
   down_sample = 50000,
   down_sample_frac = 0.25,
   max_num_cells = 2e+09,
-  collect_fitness_score = FALSE
+  collect_fitness_score = FALSE,
+  CnFS = TRUE,
+  KMS = FALSE,
+  final_aneu_het_scores = NULL
 )
 }
 \arguments{
@@ -76,6 +79,12 @@ parallelCinsim(
 \item{max_num_cells}{The maximum number of (theoretical) cells to simulate before the simulation is terminated.}
 
 \item{collect_fitness_score}{A logical whether to collect the fitness scores over time.}
+
+\item{CnFS}{Boolean to indicate whether the CnFS should be calculated, defaults to TRUE}
+
+\item{KMS}{Boolean to indicate whether the KMS should be calculated, defaults to FALSE}
+
+\item{final_aneu_het_scores}{The final population measures (heterogeneity & aneuploidy) required for calculating the KMS.}
 }
 \value{
 A \code{list} with karyoSim objects.
