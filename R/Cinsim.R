@@ -96,6 +96,12 @@ Cinsim <- function(karyotypes = NULL,
     gen_measures[[1]] <- gen_measures[[1]] %>%
       mutate(CnFS = "not calculated")
   }
+  if (KMS & is.null(final_aneu_het_scores)){
+    message("User wants KMS to be calculated but did not provide aneuploidy &
+            heterogeneity scores required for this calculation - skipping KMS
+            calculation.")
+    KMS <- FALSE
+  }
   if(KMS){
     KMS_val <- calc_KMS(karyotypes = karyotypes,
                         pop_measures = final_aneu_het_scores)

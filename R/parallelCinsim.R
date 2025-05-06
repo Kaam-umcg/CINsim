@@ -25,6 +25,9 @@
 #' @param down_sample_frac The fraction of cells with which to continue the simulation after down-sampling.
 #' @param max_num_cells The maximum number of (theoretical) cells to simulate before the simulation is terminated.
 #' @param collect_fitness_score A logical whether to collect the fitness scores over time.
+#' @param CnFS Boolean to indicate whether the CnFS should be calculated, defaults to TRUE
+#' @param KMS Boolean to indicate whether the KMS should be calculated, defaults to FALSE
+#' @param final_aneu_het_scores The final population measures (heterogeneity & aneuploidy) required for calculating the KMS.
 #' @return A \code{list} with karyoSim objects.
 #' @import tidyverse
 #' @import parallel
@@ -56,7 +59,10 @@ parallelCinsim <- function(iterations = 6,
                            down_sample = 5e+04,
                            down_sample_frac = 0.25,
                            max_num_cells = 2e+09,
-                           collect_fitness_score = FALSE) {
+                           collect_fitness_score = FALSE,
+                           CnFS = TRUE,
+                           KMS = FALSE,
+                           final_aneu_het_scores = NULL) {
 
   # start timed message
   message("==> Starting simulation(s) <==")
@@ -139,7 +145,10 @@ parallelCinsim <- function(iterations = 6,
                               down_sample = down_sample,
                               down_sample_frac = down_sample_frac,
                               max_num_cells = max_num_cells,
-                              collect_fitness_score = collect_fitness_score)
+                              collect_fitness_score = collect_fitness_score,
+                              CnFS = CnFS,
+                              KMS = KMS,
+                              final_aneu_het_scores = final_aneu_het_scores)
                      }
 
   # stop clusters

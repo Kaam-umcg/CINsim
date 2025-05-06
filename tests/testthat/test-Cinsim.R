@@ -18,7 +18,11 @@ test_that("Adding selection mode doesn't error out", {
   #                        selection_metric = CINsim::human_neutral))
 })
 
-#
-# test_that("", {
-#
-# })
+test_that("CnFS can be calculated when flag is given with selection", {
+  generations <- 6
+  Cinsim_output <- Cinsim(g = generations, CnFS = TRUE, selection_mode = "cn_based",
+                          selection_metric = Mps1)
+  expect_equal(class(Cinsim_output), "karyoSim")
+  expect_vector(Cinsim_output$gen_measures$CnFS, ptype = numeric(),
+                size = generations + 1) # +1 for CnFS of generation 0
+})

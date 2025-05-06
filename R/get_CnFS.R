@@ -4,6 +4,7 @@
 #' @return The Copy number Frequency Score (CnFS) for the final
 #' generation for the given simulation
 #' @author Bjorn Bakker, Alex van Kaam
+#' @importFrom purrr pluck
 #' @export
 
 get_final_CnFS <- function(sim_results) {
@@ -71,7 +72,7 @@ the CnFS cannot be calculated. Setting CnFS to 0.")
 #' @export
 calc_CnFS <- function(karyotypes, selection_metric) {
   # checks whether the dimensions of karyos and selection metric match
-  if (!(length(test_karyos[1, ]) == length(selection_metric[1, ]))){
+  if (!(length(karyotypes[1, ]) == length(selection_metric[1, ]))){
     message("Your selection metric and karyotypes don't have the same
             amount of chromosomes! Cannot calculate CnFS, setting to 0")
     return(0)
@@ -93,7 +94,7 @@ calc_CnFS <- function(karyotypes, selection_metric) {
     for (cn in rownames(selection_metric)){
       # gets the frequency of a CN for a chromosome from the simulation
       freq_sim <- freq_per_chrom[[chrom]] %>%
-        pluck(cn, .default = 0) # gives 0 if it doesn't exist/out of bounds
+        purrr::pluck(cn, .default = 0) # gives 0 if it doesn't exist/out of bounds
 
       # this value should always exist
       freq_obs <- selection_metric[cn, chrom]
