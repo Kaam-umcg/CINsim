@@ -9,23 +9,21 @@
 #' @author Bjorn Bakker
 
 qAneuploidy <- function(karyoMat, numberOfCells = NULL, euploidRef = NULL) {
-
   # check user input and create alternate variables if necessary
-  if(is.null(numberOfCells)) {
+  if (is.null(numberOfCells)) {
     numberOfCells <- nrow(karyoMat)
   }
-  if(is.null(euploidRef)) {
+  if (is.null(euploidRef)) {
     euploidRef <- 2
   }
 
   # quantify and return level of aneuploidy
-  if(numberOfCells > 1) {
+  if (numberOfCells > 1) {
     aneuploidyScore <- colMeans(abs(karyoMat - euploidRef))
   } else {
     aneuploidyScore <- abs(karyoMat - euploidRef)
   }
   return(aneuploidyScore)
-
 }
 
 #' Quantify levels of heterogeneity
@@ -37,27 +35,35 @@ qAneuploidy <- function(karyoMat, numberOfCells = NULL, euploidRef = NULL) {
 #' @author Bjorn Bakker
 
 qHeterogeneity <- function(karyoMat) {
-
   # set number of cells
   numberOfCells <- nrow(karyoMat)
 
   # calculate absolute frequency of copy number states per chromosome
-  if(numberOfCells > 1) {
-    tabs <- apply(karyoMat, 2, function(x) {sort(table(x), decreasing = TRUE)})
+  if (numberOfCells > 1) {
+    tabs <- apply(karyoMat, 2, function(x) {
+      sort(table(x), decreasing = TRUE)
+    })
   } else {
-    tabs <- sapply(karyoMat, function(x) {sort(table(x), decreasing = TRUE)})
+    tabs <- sapply(karyoMat, function(x) {
+      sort(table(x), decreasing = TRUE)
+    })
   }
 
   # calculate and return heterogeneity score
-  if(is.list(tabs)) {
-    heterogeneityScore <- unlist(lapply(tabs, function(x) {sum(x * 0:(length(x)-1))}))/numberOfCells
-  } else if(is.null(dim(tabs))) {
-    heterogeneityScore <- sapply(tabs, function(x) {sum(x * 0:(length(x)-1))})/numberOfCells
+  if (is.list(tabs)) {
+    heterogeneityScore <- unlist(lapply(tabs, function(x) {
+      sum(x * 0:(length(x) - 1))
+    })) / numberOfCells
+  } else if (is.null(dim(tabs))) {
+    heterogeneityScore <- sapply(tabs, function(x) {
+      sum(x * 0:(length(x) - 1))
+    }) / numberOfCells
   } else {
-    heterogeneityScore <- apply(tabs, 2, function(x) {sum(x * 0:(length(x)-1))})/numberOfCells
+    heterogeneityScore <- apply(tabs, 2, function(x) {
+      sum(x * 0:(length(x) - 1))
+    }) / numberOfCells
   }
   return(heterogeneityScore)
-
 }
 
 #' Calculate the fraction of cells that deviate from the modal copy number
@@ -69,17 +75,16 @@ qHeterogeneity <- function(karyoMat) {
 #' @author Bjorn Bakker
 
 dev_from_mode <- function(karyotypes) {
-
   # get modal copy per chromosome
-  modal_copy <- apply(karyotypes, 2, function(x) {getMode(x)})
+  modal_copy <- apply(karyotypes, 2, function(x) {
+    getMode(x)
+  })
 
   # compare modal copy number with given copy number
-  deviation <- sweep(karyotypes, 2, modal_copy, '!=')
+  deviation <- sweep(karyotypes, 2, modal_copy, "!=")
 
   # get mean deviation
   deviation <- apply(deviation, 2, mean)
 
   return(deviation)
-
 }
-

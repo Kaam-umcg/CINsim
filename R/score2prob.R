@@ -13,74 +13,70 @@ get_score <- function(karyotypes = NULL,
                       selection_mode = NULL,
                       selection_metric = NULL,
                       chrom_weights = NULL) {
-
-  if(is.null(karyotypes) | is.null(selection_mode) | is.null(selection_metric)) {
+  if (is.null(karyotypes) | is.null(selection_mode) | is.null(selection_metric)) {
     stop("Selection mode or metric required")
   }
 
   ### cn_based selection
-  if(selection_mode == "cn_based" & !is.null(selection_metric)) {
-
+  if (selection_mode == "cn_based" & !is.null(selection_metric)) {
     # set-up a collection array
     probs <- array(NA, dim = dim(karyotypes), dimnames = dimnames(karyotypes))
-    for(i in colnames(karyotypes)) {
+    for (i in colnames(karyotypes)) {
       probs[, i] <- selection_metric[cbind(as.character(karyotypes[, i, drop = FALSE]), as.character(i))]
     }
-    if(!is.null(chrom_weights)) {
+    if (!is.null(chrom_weights)) {
       probs <- sweep(probs, 2, STATS = chrom_weights, FUN = "*")
     }
     sur_prob <- rowSums(probs)
 
     return(sur_prob)
-
   }
 
   ### relative copy number
-  if(selection_mode == "rel_copy" & !is.null(selection_metric)) {
-
+  if (selection_mode == "rel_copy" & !is.null(selection_metric)) {
     # get median copy per cell and calculate genome-wide deviation from median copy
     chromosomes <- names(selection_metric)
-    deviation <- array(NA, dim = dim(karyotypes[, chromosomes, drop = FALSE]),
-                       dimnames = dimnames(karyotypes[, chromosomes, drop = FALSE]))
+    deviation <- array(NA,
+      dim = dim(karyotypes[, chromosomes, drop = FALSE]),
+      dimnames = dimnames(karyotypes[, chromosomes, drop = FALSE])
+    )
     deviation <- apply(karyotypes[, chromosomes, drop = FALSE], 1, function(x) {
       median_copy <- median(x)
       x <- x - median_copy
-      x <- abs(x - (selection_metric*floor(median_copy/2)))
-      if(!is.null(chrom_weights)) {
+      x <- abs(x - (selection_metric * floor(median_copy / 2)))
+      if (!is.null(chrom_weights)) {
         x <- x * chrom_weights
       }
       x <- sum(x)
       return(x)
     })
     return(deviation)
-
   }
 
   ### davoli copy number
-  if(selection_mode == "davoli" & !is.null(selection_metric)) {
-
+  if (selection_mode == "davoli" & !is.null(selection_metric)) {
     # check length of chrom_scores vector and trim if necessary
-    if(length(selection_metric) != ncol(karyotypes)) {
+    if (length(selection_metric) != ncol(karyotypes)) {
       message("Chrom scores vector is longer than karyotype size - trimming")
       selection_metric <- selection_metric[1:ncol(karyotypes)]
     }
 
     # modify chromosome scores if weights are supplied
-    if(!is.null(chrom_weights)) {
+    if (!is.null(chrom_weights)) {
       selection_metric <- selection_metric * chrom_weights
     }
 
     # make a chromosome_score matrix
-    chrom_score_mat <- matrix(data = selection_metric, ncol = ncol(karyotypes),
-                              nrow = nrow(karyotypes),
-                              byrow = TRUE, dimnames = dimnames(karyotypes))
+    chrom_score_mat <- matrix(
+      data = selection_metric, ncol = ncol(karyotypes),
+      nrow = nrow(karyotypes),
+      byrow = TRUE, dimnames = dimnames(karyotypes)
+    )
 
     # calculate score
     score <- rowSums(karyotypes * chrom_score_mat)
     return(score)
-
   }
-
 }
 
 
@@ -95,10 +91,10 @@ get_score <- function(karyotypes = NULL,
 #' @author Bjorn Bakker
 
 score2prob <- function(score, a, b, linear = TRUE) {
-  if(linear) {
-    p_sur <- a*score + b
+  if (linear) {
+    p_sur <- a * score + b
   } else {
-    p_sur <- exp((a * score) + b)/100
+    p_sur <- exp((a * score) + b) / 100
   }
   return(p_sur)
 }
@@ -119,20 +115,23 @@ score2prob <- function(score, a, b, linear = TRUE) {
 
 get_coefficients <- function(selection_metric = NULL, euploid_copy = 2,
                              euploid_survival = 0.9, max_survival = 1) {
-
   # check user input
-  if(is.null(selection_metric)) {
+  if (is.null(selection_metric)) {
     message("No custom selection metric provided - using Mps1-based default")
     selection_metric <- Mps1_X
   }
 
   # get euploid and optimal (max) fitness
-  fitness <- tibble(p_sur = c(euploid_survival, max_survival),
-                    score = c(selection_metric[as.character(euploid_copy), ] %>% sum(),
-                              apply(X = selection_metric, MARGIN = 2, FUN = "max") %>% sum()))
+  fitness <- tibble(
+    p_sur = c(euploid_survival, max_survival),
+    score = c(
+      selection_metric[as.character(euploid_copy), ] %>% sum(),
+      apply(X = selection_metric, MARGIN = 2, FUN = "max") %>% sum()
+    )
+  )
 
   # alter the value of the maximum score if euploid karyotype yields maximum score already
-  if(fitness$score[1] == fitness$score[2]) {
+  if (fitness$score[1] == fitness$score[2]) {
     fitness$score[1] <- fitness$score[2] * euploid_survival
   }
 
@@ -146,7 +145,6 @@ get_coefficients <- function(selection_metric = NULL, euploid_copy = 2,
 
   # return
   return(fit_coef)
-
 }
 
 #' Get list of coefficients to determine karyotype survival
@@ -170,14 +168,13 @@ make_cinsim_coeffcients <- function(selection_metric = NULL, euploid_copy = 2,
                                     min_survival_euploid = 0.9, max_survival_euploid = 0.9,
                                     max_survival = 1, interval = 0.1,
                                     probability_types = c("pSurvival")) {
-
   # check user input
-  if(is.null(selection_metric)) {
+  if (is.null(selection_metric)) {
     message("No custom selection metric provided - using Mps1-based default")
     selection_metric <- Mps1_X
   }
 
-  if(!any(probability_types %in% c("pDivision", "pMisseg", "pSurvival"))) {
+  if (!any(probability_types %in% c("pDivision", "pMisseg", "pSurvival"))) {
     message("Given probability does not exist - defaulting to pSurvival only")
     probability_types <- c("pSurvival")
   }
@@ -185,60 +182,64 @@ make_cinsim_coeffcients <- function(selection_metric = NULL, euploid_copy = 2,
   # p ranges
   coefs <- list()
   euploid_p <- seq(from = min_survival_euploid, to = max_survival_euploid, by = interval)
-  for(i in 1:length(euploid_p)) {
-    coefs[[i]] <- get_coefficients(selection_metric = selection_metric,
-                                   euploid_copy = euploid_copy,
-                                   euploid_survival = euploid_p[i],
-                                   max_survival = max_survival)
+  for (i in 1:length(euploid_p)) {
+    coefs[[i]] <- get_coefficients(
+      selection_metric = selection_metric,
+      euploid_copy = euploid_copy,
+      euploid_survival = euploid_p[i],
+      max_survival = max_survival
+    )
   }
   names(coefs) <- paste("euploid_p", euploid_p, sep = "_")
 
   # if length of euploid_p is 1, return the default coefficients
-  if(length(coefs) == 1) {
-    coefs <- list(pDivision = coefs[[1]],
-                  pMisseg = coefs[[1]],
-                  pSurvival = coefs[[1]])
+  if (length(coefs) == 1) {
+    coefs <- list(
+      pDivision = coefs[[1]],
+      pMisseg = coefs[[1]],
+      pSurvival = coefs[[1]]
+    )
     return(coefs)
   } else {
-
     # collapse coefs into a single data frame
     coefs_df <- as.data.frame(coefs) %>% t()
     coef_length <- nrow(coefs_df)
 
     # make combinations of coefs
-    if("pDivision" %in% probability_types) {
+    if ("pDivision" %in% probability_types) {
       pDivision <- seq(1, coef_length, 1)
     } else {
       pDivision <- coef_length
     }
-    if("pMisseg" %in% probability_types) {
+    if ("pMisseg" %in% probability_types) {
       pMisseg <- seq(1, coef_length, 1)
     } else {
       pMisseg <- coef_length
     }
-    if("pSurvival" %in% probability_types) {
+    if ("pSurvival" %in% probability_types) {
       pSurvival <- seq(1, coef_length, 1)
     } else {
       pSurvival <- coef_length
     }
-    coef_combinations <- expand.grid(pDivision = pDivision,
-                                     pMisseg = pMisseg,
-                                     pSurvival = pSurvival) %>%
+    coef_combinations <- expand.grid(
+      pDivision = pDivision,
+      pMisseg = pMisseg,
+      pSurvival = pSurvival
+    ) %>%
       as.matrix()
 
     # compile list of coefs
     coef_list <- list()
-    for(i in 1:nrow(coef_combinations)) {
+    for (i in 1:nrow(coef_combinations)) {
       coef_combination_name <- paste(euploid_p[coef_combinations[i, ]], collapse = "_")
-      coef_sublist <- list(pDivision = coefs_df[coef_combinations[i, "pDivision"], ],
-                           pMisseg = coefs_df[coef_combinations[i, "pMisseg"], ],
-                           pSurvival = coefs_df[coef_combinations[i, "pSurvival"], ])
+      coef_sublist <- list(
+        pDivision = coefs_df[coef_combinations[i, "pDivision"], ],
+        pMisseg = coefs_df[coef_combinations[i, "pMisseg"], ],
+        pSurvival = coefs_df[coef_combinations[i, "pSurvival"], ]
+      )
       coef_list[[coef_combination_name]] <- coef_sublist
     }
 
     return(coef_list)
-
   }
-
-
 }

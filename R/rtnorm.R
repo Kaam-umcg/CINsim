@@ -8,6 +8,6 @@
 #' @param a The lower limit (default is 1)
 #' @param b The upper limit (default is 8)
 
-rtnorm <- function(n, mean = 2, sd = 1, a = 1, b = 8){
+rtnorm <- function(n, mean = 2, sd = 1, a = 1, b = 8) {
   qnorm(runif(n, pnorm(a, mean, sd), pnorm(b, mean, sd)), mean, sd)
 }

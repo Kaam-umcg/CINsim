@@ -11,20 +11,21 @@
 #' @author Bjorn Bakker
 
 population_measures <- function(karyotypes = NULL, euploid_ref = 2, g = NULL) {
-
   # check user input
-  if(is.null(karyotypes) | !is.matrix(karyotypes)) {
+  if (is.null(karyotypes) | !is.matrix(karyotypes)) {
     stop("Karyotypes in matrix format should be provided")
-  } else if(is.null(g)) {
+  } else if (is.null(g)) {
     g <- "unspecified"
   }
 
   # gather measures and compile into tidy data frame,
   # and factor chromosome
-  karyotype_measures <- tibble(chromosome = colnames(karyotypes),
-                               aneuploidy = qAneuploidy(karyotypes, euploid_ref),
-                               heterogeneity = qHeterogeneity(karyotypes),
-                               deviation = dev_from_mode(karyotypes)) %>%
+  karyotype_measures <- tibble(
+    chromosome = colnames(karyotypes),
+    aneuploidy = qAneuploidy(karyotypes, euploid_ref),
+    heterogeneity = qHeterogeneity(karyotypes),
+    deviation = dev_from_mode(karyotypes)
+  ) %>%
     mutate(chromosome = factor(chromosome, levels = colnames(karyotypes))) %>%
     nest(measures = c(chromosome, aneuploidy, heterogeneity, deviation))
 
@@ -39,8 +40,9 @@ population_measures <- function(karyotypes = NULL, euploid_ref = 2, g = NULL) {
     mutate(chromosome = factor(chromosome, levels = colnames(karyotypes))) %>%
     group_by(chromosome, copy) %>%
     dplyr::count() %>%
-    ungroup() %>% group_by(chromosome) %>%
-    mutate(freq = n/sum(n)) %>%
+    ungroup() %>%
+    group_by(chromosome) %>%
+    mutate(freq = n / sum(n)) %>%
     ungroup() %>%
     nest(cn_freq = c(n, freq))
 
@@ -49,7 +51,7 @@ population_measures <- function(karyotypes = NULL, euploid_ref = 2, g = NULL) {
     group_by(cell_id) %>%
     dplyr::count() %>%
     ungroup() %>%
-    mutate(freq = n/sum(n)) %>%
+    mutate(freq = n / sum(n)) %>%
     nest(clone_freq = c(n, freq))
 
   # combine all data into a single nested data frame
@@ -59,5 +61,3 @@ population_measures <- function(karyotypes = NULL, euploid_ref = 2, g = NULL) {
   # return karyotype measures
   return(pop_measures)
 }
-
-

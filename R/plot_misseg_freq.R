@@ -12,7 +12,6 @@
 #' @export
 
 plot_misseg_freq <- function(karyoSim, plot = TRUE) {
-
   # get mis-segregation frequencies and modify the table
   suppressWarnings(misseg_freq <- karyoSim$misseg_freq %>%
     unnest(misseg_freq) %>%
@@ -26,7 +25,7 @@ plot_misseg_freq <- function(karyoSim, plot = TRUE) {
     arrange(g) %>%
     mutate(chromosome = factor(chromosome, levels = rev(.$chromosome))))
 
-  if(plot) {
+  if (plot) {
     # plot the results
     p1 <- misseg_freq %>%
       ggplot(aes(x = g, y = freq)) +
@@ -34,8 +33,10 @@ plot_misseg_freq <- function(karyoSim, plot = TRUE) {
       scale_fill_viridis_d(direction = -1) +
       scale_x_continuous(breaks = c(1, seq(5, to = max(misseg_freq$g), by = 5))) +
       expand_limits(x = 1) +
-      labs(x = "Generation", y = "Fraction", fill = "Mis-segregations",
-           title = "Number of mis-segregations per mitosis") +
+      labs(
+        x = "Generation", y = "Fraction", fill = "Mis-segregations",
+        title = "Number of mis-segregations per mitosis"
+      ) +
       cinsim_theme() +
       theme(legend.position = "bottom")
 
@@ -47,18 +48,18 @@ plot_misseg_freq <- function(karyoSim, plot = TRUE) {
       scale_y_continuous(breaks = seq(0, karyoSim$sim_info["g"], by = 1)) +
       scale_fill_viridis_d(guide = FALSE) +
       coord_flip() +
-      labs(x = "Chromosome", y = "Generation",
-           title = "Generation of first mis-segregation") +
+      labs(
+        x = "Chromosome", y = "Generation",
+        title = "Generation of first mis-segregation"
+      ) +
       cinsim_theme()
 
     p <- p1 + p2 + patchwork::plot_layout(nrow = 1)
     return(p)
-
   } else {
-
-    return(list(misseg_freq = misseg_freq,
-                chrom_freq = chrom_freq))
-
+    return(list(
+      misseg_freq = misseg_freq,
+      chrom_freq = chrom_freq
+    ))
   }
-
 }

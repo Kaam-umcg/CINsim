@@ -12,12 +12,11 @@
 #' @export
 
 get_coefficients <- function(selection_mode = NULL, euploid_survival = 0.9, max_survival = 1) {
-
   # check user input
-  if(is.null(selection_mode)) {
+  if (is.null(selection_mode)) {
     selection_mode <- "cn_based"
     message("Applying default selection mode: cn_based")
-  } else if(!method %in% c("cn_based", "rel_copy")) {
+  } else if (!method %in% c("cn_based", "rel_copy")) {
     selection_mode <- "cn_based"
     message("Seleciton mode must be either cn_based or rel_copy - applying default selection mode: cn_based")
   }
@@ -25,8 +24,10 @@ get_coefficients <- function(selection_mode = NULL, euploid_survival = 0.9, max_
   # sub-select fitness scores
   fitness <- optimal_fitness %>%
     filter(method %in% selection_mode) %>%
-    mutate(p_sur = case_when(karyotype == "Euploid" ~ euploid_survival,
-                             karyotype == "Optimal" ~ max_survival))
+    mutate(p_sur = case_when(
+      karyotype == "Euploid" ~ euploid_survival,
+      karyotype == "Optimal" ~ max_survival
+    ))
 
   # get linear fit and coefficients
   fit <- lm(data = fitness, formula = p_sur ~ score)
@@ -38,5 +39,4 @@ get_coefficients <- function(selection_mode = NULL, euploid_survival = 0.9, max_
 
   # return
   return(fit_coef)
-
 }

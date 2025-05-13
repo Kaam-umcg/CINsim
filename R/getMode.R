@@ -7,6 +7,6 @@
 #' @author Bjorn Bakker
 
 getMode <- function(x) {
-    uniqv <- unique(x)
-    uniqv[which.max(tabulate(match(x, uniqv)))]
+  uniqv <- unique(x)
+  uniqv[which.max(tabulate(match(x, uniqv)))]
 }

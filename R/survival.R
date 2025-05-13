@@ -27,9 +27,8 @@ karyotype_survival <- function(karyotypes,
                                min_euploid = NULL,
                                euploid_ref = 2,
                                qMod = 1) {
-
   # check user input
-  if(is.null(karyotypes) | !is.matrix(karyotypes)) {
+  if (is.null(karyotypes) | !is.matrix(karyotypes)) {
     stop("Karyotypes in matrix format should be provided")
   }
 
@@ -39,7 +38,7 @@ karyotype_survival <- function(karyotypes,
   })
 
   # check the number of monosmies
-  if(is.null(max_monosomy)) {
+  if (is.null(max_monosomy)) {
     max_mono <- rep(TRUE, nrow(karyotypes))
   } else {
     max_mono <- apply(karyotypes, 1, function(x) {
@@ -48,7 +47,7 @@ karyotype_survival <- function(karyotypes,
   }
 
   # check the number of euploid chromosomes
-  if(is.null(min_euploid)) {
+  if (is.null(min_euploid)) {
     min_eupl <- rep(TRUE, nrow(karyotypes))
   } else {
     min_eupl <- apply(karyotypes, 1, function(x) {
@@ -60,31 +59,28 @@ karyotype_survival <- function(karyotypes,
   viable <- within_boundary & max_mono & min_eupl
 
   # apply relevant selection mode
-  if(is.null(selection_mode)) {
-
+  if (is.null(selection_mode)) {
     return(viable)
-
   } else {
-
     # sub-select viable karyotypes
     karyotypes_viable <- karyotypes[which(viable), , drop = FALSE]
 
     # get survival probabilities
-    sur_prob <- setQmod(karyotype = karyotypes_viable,
-                        chrom_weights = chrom_weights,
-                        selection_mode = selection_mode,
-                        selection_metric = selection_metric,
-                        a = a, b = b,
-                        get_sur_probs = TRUE,
-                        qMod = qMod)
+    sur_prob <- setQmod(
+      karyotype = karyotypes_viable,
+      chrom_weights = chrom_weights,
+      selection_mode = selection_mode,
+      selection_metric = selection_metric,
+      a = a, b = b,
+      get_sur_probs = TRUE,
+      qMod = qMod
+    )
 
     # check survival
     survival <- sur_prob >= runif(n = nrow(karyotypes_viable), min = 0, max = 1)
-
   }
 
   # combine selection mode (if applied) and viability into a single indexed vector
   viable[which(viable)] <- survival
   return(viable)
-
 }

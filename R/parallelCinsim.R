@@ -65,25 +65,29 @@ parallelCinsim <- function(iterations = 6,
                            KMS = FALSE,
                            final_aneu_het_scores = NULL,
                            verbose = 1) {
-
   # start timed message
-  if (verbose >= 1){
+  if (verbose >= 1) {
     message("==> Starting simulation(s) <==")
     time0 <- proc.time()
   }
 
   # assess lengths of karyotypes, pmisseg and qMods in case of multiple values
-  listable_value <- tibble(value = c("karyotypes", "pMisseg", "qMods"),
-                           multiple = c(is.list(karyotypes),
-                                        length(pMisseg) > 1,
-                                        is.list(qMods)),
-                           length = c(length(karyotypes),
-                                      length(pMisseg),
-                                      length(qMods)))
+  listable_value <- tibble(
+    value = c("karyotypes", "pMisseg", "qMods"),
+    multiple = c(
+      is.list(karyotypes),
+      length(pMisseg) > 1,
+      is.list(qMods)
+    ),
+    length = c(
+      length(karyotypes),
+      length(pMisseg),
+      length(qMods)
+    )
+  )
 
   # adjust listable parameters if necessary
-  if(any(listable_value$multiple)) {
-
+  if (any(listable_value$multiple)) {
     iterations_max <- listable_value %>%
       filter(multiple) %>%
       .$length %>%
@@ -93,20 +97,19 @@ parallelCinsim <- function(iterations = 6,
       .$value
 
     # extend (if necessary) values to fit max iterations
-    if(value_max == "karyotypes") {
+    if (value_max == "karyotypes") {
       pMisseg <- rep(pMisseg, iterations_max)
       qMods <- rep(list(qMods), iterations_max)
-    } else if(value_max == "pMisseg") {
+    } else if (value_max == "pMisseg") {
       karyotypes <- rep(list(karyotypes), iterations_max)
       qMods <- rep(list(qMods), iterations_max)
-    } else if(value_max == "qMods") {
+    } else if (value_max == "qMods") {
       karyotypes <- rep(list(karyotypes), iterations_max)
       pMisseg <- rep(pMisseg, iterations_max)
     }
 
     # redefine iterations
     iterations <- iterations_max
-
   } else {
     karyotypes <- rep(list(karyotypes), iterations)
     pMisseg <- rep(pMisseg, iterations)
@@ -118,49 +121,55 @@ parallelCinsim <- function(iterations = 6,
   doSNOW::registerDoSNOW(cl)
 
   # progress bar
-  if (verbose >= 1){
+  if (verbose >= 1) {
     pb <- txtProgressBar(min = 0, max = iterations, initial = 0, style = 3)
-    progress <- function(n) { setTxtProgressBar(pb, n) }
+    progress <- function(n) {
+      setTxtProgressBar(pb, n)
+    }
     opts <- list(progress = progress)
-  }else{
+  } else {
     opts <- NULL
   }
 
   # generation list simulations
-  simList <- foreach(iteration = 1:iterations,
-                     .export = c("Cinsim"),
-                     .options.snow = opts,
-                     .packages = 'CINsim',
-                     #.verbose = TRUE, # uncomment if debugging as a developer
-                     .inorder = TRUE) %dopar% {
-                       Cinsim(karyotypes = karyotypes[[iteration]],
-                              euploid_ref = euploid_ref,
-                              g = g,
-                              pMisseg = pMisseg[iteration],
-                              pWGD = pWGD,
-                              pMissegG = pMissegG,
-                              fit_misseg = fit_misseg,
-                              pDivision = pDivision,
-                              fit_division = fit_division,
-                              copy_num_boundaries = copy_num_boundaries,
-                              selection_mode = selection_mode,
-                              selection_metric = selection_metric,
-                              coef = coef,
-                              chrom_weights = chrom_weights,
-                              qMods = qMods[[iteration]],
-                              max_monosomy = max_monosomy,
-                              min_euploid = min_euploid,
-                              down_sample = down_sample,
-                              down_sample_frac = down_sample_frac,
-                              max_num_cells = max_num_cells,
-                              collect_fitness_score = collect_fitness_score,
-                              CnFS = CnFS,
-                              KMS = KMS,
-                              final_aneu_het_scores = final_aneu_het_scores,
-                              verbose = verbose)
-                     }
+  simList <- foreach(
+    iteration = 1:iterations,
+    .export = c("Cinsim"),
+    .options.snow = opts,
+    .packages = "CINsim",
+    # .verbose = TRUE, # uncomment if debugging as a developer
+    .inorder = TRUE
+  ) %dopar% {
+    Cinsim(
+      karyotypes = karyotypes[[iteration]],
+      euploid_ref = euploid_ref,
+      g = g,
+      pMisseg = pMisseg[iteration],
+      pWGD = pWGD,
+      pMissegG = pMissegG,
+      fit_misseg = fit_misseg,
+      pDivision = pDivision,
+      fit_division = fit_division,
+      copy_num_boundaries = copy_num_boundaries,
+      selection_mode = selection_mode,
+      selection_metric = selection_metric,
+      coef = coef,
+      chrom_weights = chrom_weights,
+      qMods = qMods[[iteration]],
+      max_monosomy = max_monosomy,
+      min_euploid = min_euploid,
+      down_sample = down_sample,
+      down_sample_frac = down_sample_frac,
+      max_num_cells = max_num_cells,
+      collect_fitness_score = collect_fitness_score,
+      CnFS = CnFS,
+      KMS = KMS,
+      final_aneu_het_scores = final_aneu_het_scores,
+      verbose = verbose
+    )
+  }
   # only need to close if verbose was on
-  if (verbose >= 1){
+  if (verbose >= 1) {
     close(pb)
   }
   # stop clusters
@@ -170,7 +179,7 @@ parallelCinsim <- function(iterations = 6,
   # set simulation names
   names(simList) <- paste0("sim_", 1:iterations)
 
-  if (verbose >= 1 ){
+  if (verbose >= 1) {
     time1 <- proc.time() - time0
     message("==| Simulation(s) complete - final time: ", round(time1[3], 2), "s |==")
   }
@@ -179,5 +188,4 @@ parallelCinsim <- function(iterations = 6,
 
   # return simList
   return(simList)
-
 }

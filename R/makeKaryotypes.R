@@ -13,38 +13,42 @@
 
 makeKaryotypes <- function(numCell = 20, species = "mouse", copies = 2,
                            random = FALSE, varianceMultiplier = 0.5) {
-
   # check user input to determine the number of chromosome pairs
-  if(species == "mouse") {
+  if (species == "mouse") {
     numChr <- 20
-  } else if(species == "human") {
+  } else if (species == "human") {
     numChr <- 23
   } else {
     numChr <- species
   }
 
   # generate random karyotypes if requested
-  if(random) {
-
+  if (random) {
     # assign random karyotypes around the ploidy count
-    karyotypeMat <- t(replicate(n = numCell,
-                                expr = round(rtnorm(numChr, mean = copies, sd = varianceMultiplier), digits = 0)))
+    karyotypeMat <- t(replicate(
+      n = numCell,
+      expr = round(rtnorm(numChr, mean = copies, sd = varianceMultiplier), digits = 0)
+    ))
 
     # check for cells with negative copy numbers or greater than 9 and remove them; make additional karyotypes until
     # the requested number of karyotypes has been generated
-    impossibleCells <- apply(karyotypeMat, 1, function(x) {any(x < 0 | x > 9)})
+    impossibleCells <- apply(karyotypeMat, 1, function(x) {
+      any(x < 0 | x > 9)
+    })
     numImpossibleCells <- sum(impossibleCells)
-    while(numImpossibleCells > 0) {
-      newCells <- t(replicate(n = numImpossibleCells,
-                              expr = round(rtnorm(numChr, mean = copies, sd = varianceMultiplier), digits = 0)))
+    while (numImpossibleCells > 0) {
+      newCells <- t(replicate(
+        n = numImpossibleCells,
+        expr = round(rtnorm(numChr, mean = copies, sd = varianceMultiplier), digits = 0)
+      ))
       karyotypeMat <- rbind(karyotypeMat[!impossibleCells, ], newCells)
-      impossibleCells <- apply(karyotypeMat, 1, function(x) {any(x < 0 | x > 9)})
+      impossibleCells <- apply(karyotypeMat, 1, function(x) {
+        any(x < 0 | x > 9)
+      })
       numImpossibleCells <- sum(impossibleCells)
     }
-
-
   } else {
-    karyotypes <- rep(copies, times = numCell*numChr)
+    karyotypes <- rep(copies, times = numCell * numChr)
     karyotypeMat <- matrix(karyotypes, ncol = numChr)
   }
 
@@ -52,5 +56,4 @@ makeKaryotypes <- function(numCell = 20, species = "mouse", copies = 2,
   colnames(karyotypeMat) <- c(1:(numChr - 1), "X")
   rownames(karyotypeMat) <- paste0("cell_", 1:numCell)
   return(karyotypeMat)
-
 }

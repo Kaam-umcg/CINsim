@@ -10,9 +10,8 @@
 #' @author Bjorn Bakker
 
 calculate_kld <- function(karyoSim, km_reference = NULL) {
-
   # if no karyotype measure reference is provided the default Mps1 table is used
-  if(is.null(km_reference)) {
+  if (is.null(km_reference)) {
     km_reference <- CINsim::karyotype_measures
   }
 
@@ -30,7 +29,6 @@ calculate_kld <- function(karyoSim, km_reference = NULL) {
     filter(g == 0) %>%
     .$kld
   KLD <- KLD %>%
-    mutate(kld_norm = kld/KLD_0)
+    mutate(kld_norm = kld / KLD_0)
   return(KLD)
-
 }

@@ -13,9 +13,8 @@
 #' @export
 
 cnvHeatmap <- function(karyoSim = NULL, subset_size = 1000, clones = NULL, file = NULL) {
-
   # check user input
-  if(!class(karyoSim) %in% c("karyoSim", "karyoSim_simple")) {
+  if (!class(karyoSim) %in% c("karyoSim", "karyoSim_simple")) {
     message("An object of class karyoSim is required")
     stop
   }
@@ -29,14 +28,14 @@ cnvHeatmap <- function(karyoSim = NULL, subset_size = 1000, clones = NULL, file 
     as.data.frame() %>%
     tibble::rowid_to_column("cell_id") %>%
     mutate(clone_id = rownames(kldf_plot) %>%
-             gsub(x = ., pattern = "cell_", replacement = "") %>%
-             as.numeric())
+      gsub(x = ., pattern = "cell_", replacement = "") %>%
+      as.numeric())
 
   # subset the tibble for a particular clone if it is provided
-  if(is.null(clones)) {
+  if (is.null(clones)) {
     clones <- unique(kldf_plot$clone_id)
     subsetted <- FALSE
-  } else if(!(clones %in% unique(kldf_plot$clone_id))) {
+  } else if (!(clones %in% unique(kldf_plot$clone_id))) {
     message("Clone ID not present in karyotype matrix - plotting all clones")
     clones <- unique(kldf_plot$clone_id)
     subsetted <- FALSE
@@ -48,7 +47,7 @@ cnvHeatmap <- function(karyoSim = NULL, subset_size = 1000, clones = NULL, file 
     filter(clone_id %in% clones)
 
   # randomly sample a subset when number of cells exceeds the subset size
-  if(nrow(kldf_plot) > subset_size) {
+  if (nrow(kldf_plot) > subset_size) {
     kldf_plot <- kldf_plot %>%
       filter(cell_id %in% sample(kldf_plot$cell_id, size = subset_size, replace = FALSE))
   }
@@ -63,14 +62,18 @@ cnvHeatmap <- function(karyoSim = NULL, subset_size = 1000, clones = NULL, file 
   # melt the cnv table and make a tibble; also factor the cell identifier based on similarity
   kldf_plot <- kldf_plot %>%
     gather(chromosomes, key = "chromosome", value = "copy") %>%
-    mutate(cell_id = factor(cell_id, levels = kldf_plot$cell_id[ord]),
-           chromosome = factor(chromosome, levels = chromosomes)) %>%
+    mutate(
+      cell_id = factor(cell_id, levels = kldf_plot$cell_id[ord]),
+      chromosome = factor(chromosome, levels = chromosomes)
+    ) %>%
     as_tibble()
 
   # set plot title
-  plot_title <- paste0("pMisseg: ", karyoSim$sim_info["pMisseg"],", generations: ", karyoSim$sim_info[["g"]],
-                       ", number of cells: ", length(unique(kldf_plot$cell_id)), "/", nrow(karyoSim$karyotypes))
-  if(subsetted) {
+  plot_title <- paste0(
+    "pMisseg: ", karyoSim$sim_info["pMisseg"], ", generations: ", karyoSim$sim_info[["g"]],
+    ", number of cells: ", length(unique(kldf_plot$cell_id)), "/", nrow(karyoSim$karyotypes)
+  )
+  if (subsetted) {
     plot_title <- paste(plot_title, ",\n subsetted for clone(s) ", paste0(clones, sep = " "), sep = "")
   }
 
@@ -82,14 +85,15 @@ cnvHeatmap <- function(karyoSim = NULL, subset_size = 1000, clones = NULL, file 
     labs(x = "Chromosomes", y = "Cells", fill = "Copy", title = plot_title) +
     guides(fill = guide_legend(ncol = 2)) +
     cinsim_theme() +
-    theme(axis.ticks.y = element_blank(),
-          axis.text.y = element_blank())
+    theme(
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank()
+    )
 
   # save to file if requested, otherwise rerturn the plot
-  if(is.null(file)) {
+  if (is.null(file)) {
     return(g)
   } else {
     ggsave(plot = g, filename = paste0(file, ".pdf"), width = 10, height = 8)
   }
-
 }

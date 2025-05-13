@@ -21,50 +21,49 @@
 setQmod <- function(karyotype = NULL, desired_value = 0.9, chrom_weights = NULL,
                     selection_mode = NULL, selection_metric = NULL, a = NULL, b = NULL,
                     get_sur_probs = FALSE, qMod = 1) {
-
   # check user input
-  if(is.null(selection_mode) | is.null(selection_metric)) {
+  if (is.null(selection_mode) | is.null(selection_metric)) {
     stop("No selection mode or metric provided")
-  } else if(is.null(karyotype)) {
+  } else if (is.null(karyotype)) {
     message("No karyotype provided, using default euploid female mouse")
     karyotype <- makeKaryotypes(1)
   }
 
-  if(selection_mode %in% c("cn_based", "rel_copy", "davoli") & !is.null(selection_metric)) {
-
+  if (selection_mode %in% c("cn_based", "rel_copy", "davoli") & !is.null(selection_metric)) {
     # get coefficients
-    if(is.null(a) | is.null(b)) {
+    if (is.null(a) | is.null(b)) {
       message("Using default coefficients")
       coefs <- default_coefficients %>%
         filter(method == selection_mode)
-      a <- coefs$a; b <- coefs$b
+      a <- coefs$a
+      b <- coefs$b
     }
 
     # get scores
-    scores <- get_score(karyotypes = karyotype,
-                        selection_mode = selection_mode,
-                        selection_metric = selection_metric,
-                        chrom_weights = chrom_weights)
+    scores <- get_score(
+      karyotypes = karyotype,
+      selection_mode = selection_mode,
+      selection_metric = selection_metric,
+      chrom_weights = chrom_weights
+    )
 
     # calculate the probablity of survival
-    if(selection_mode %in% c("cn_based", "rel_copy")) {
-      sur_prob <- qMod*score2prob(scores, a, b, linear = TRUE)
+    if (selection_mode %in% c("cn_based", "rel_copy")) {
+      sur_prob <- qMod * score2prob(scores, a, b, linear = TRUE)
     } else {
       # davoli based selection uses exponential equation
-      sur_prob <- qMod*score2prob(scores, a, b, linear = FALSE)
+      sur_prob <- qMod * score2prob(scores, a, b, linear = FALSE)
     }
 
     # calculate qMod and return value
-    if(get_sur_probs) {
+    if (get_sur_probs) {
       return(sur_prob)
     } else {
-      qMod <- desired_value/sur_prob
+      qMod <- desired_value / sur_prob
       names(qMod) <- NULL
       return(qMod)
     }
-
   } else {
     message("Selection mode not recognized: please select cn_based, rel_copy, or davoli")
   }
-
 }

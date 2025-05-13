@@ -12,47 +12,68 @@ test_that("Invalid number of generations leads to an error", {
 })
 
 test_that("Adding selection mode to inputs returns a valid object", {
-  expect_equal(class(parallelCinsim(iterations = 2, selection_mode = "cn_based",
-                                    selection_metric = Mps1, verbose = 0)),
-               "karyoSimParallel")
-  expect_equal(class(parallelCinsim(iterations = 2, selection_mode = "rel_copy",
-                                    selection_metric = Mps1, verbose = 0)),
-               "karyoSimParallel")
+  expect_equal(
+    class(parallelCinsim(
+      iterations = 2, selection_mode = "cn_based",
+      selection_metric = Mps1, verbose = 0
+    )),
+    "karyoSimParallel"
+  )
+  expect_equal(
+    class(parallelCinsim(
+      iterations = 2, selection_mode = "rel_copy",
+      selection_metric = Mps1, verbose = 0
+    )),
+    "karyoSimParallel"
+  )
 
   # this test will fail consistently - check Davoli implementation
   # expect_equal(class(parallelCinsim(iterations = 2, selection_mode = "davoli",
   #                                   selection_metric = Mps1)),
   #              "karyoSimParallel")
-
 })
 
 test_that("CnFS is calculated when flag is given with selection", {
   generations <- 6
-  CnFS_test <- parallelCinsim(iterations = 2, cores = 2, g = 6, CnFS = TRUE,
-                              selection_mode = "cn_based", selection_metric = Mps1,
-                              verbose = 0)
-  expect_vector(CnFS_test$sim_1$gen_measures$CnFS, ptype = numeric(),
-                size = generations + 1) # +1 because we calculate the baseline as well for g = 0
+  CnFS_test <- parallelCinsim(
+    iterations = 2, cores = 2, g = 6, CnFS = TRUE,
+    selection_mode = "cn_based", selection_metric = Mps1,
+    verbose = 0
+  )
+  expect_vector(CnFS_test$sim_1$gen_measures$CnFS,
+    ptype = numeric(),
+    size = generations + 1
+  ) # +1 because we calculate the baseline as well for g = 0
 })
 
 test_that("CnFS is not calculated when flag is assigned FALSE", {
   generations <- 6
-  CnFS_test <- parallelCinsim(iterations = 2, cores = 2, g = 6, CnFS = FALSE,
-                              selection_mode = "cn_based", selection_metric = Mps1,
-                              verbose = 0)
-  expect_vector(CnFS_test$sim_1$gen_measures$CnFS, ptype = character(),
-                size = generations + 1) # +1 because we calculate the baseline as well for g = 0
+  CnFS_test <- parallelCinsim(
+    iterations = 2, cores = 2, g = 6, CnFS = FALSE,
+    selection_mode = "cn_based", selection_metric = Mps1,
+    verbose = 0
+  )
+  expect_vector(CnFS_test$sim_1$gen_measures$CnFS,
+    ptype = character(),
+    size = generations + 1
+  ) # +1 because we calculate the baseline as well for g = 0
 })
 
 test_that("Verbosity can be controlled with the associated flag", {
   test_karyos <- makeKaryotypes(numCell = 1, species = "mouse")
 
-  expect_no_message(parallelCinsim(iterations = 2, cores = 2,
-                                   karyotypes = test_karyos,
-                                   CnFS = FALSE, verbose = 0))
+  expect_no_message(parallelCinsim(
+    iterations = 2, cores = 2,
+    karyotypes = test_karyos,
+    CnFS = FALSE, verbose = 0
+  ))
 
-  expect_message(parallelCinsim(iterations = 2, cores = 2,
-                                karyotypes = test_karyos,
-                                CnFS = FALSE, verbose = 1),
-                 regexp = "Starting simulation")
+  expect_message(
+    parallelCinsim(
+      iterations = 2, cores = 2,
+      karyotypes = test_karyos,
+      CnFS = FALSE, verbose = 1
+    ),
+    regexp = "Starting simulation"
+  )
 })

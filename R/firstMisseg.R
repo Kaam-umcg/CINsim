@@ -14,9 +14,8 @@
 #' @export
 #'
 plotFirstMisseg <- function(karyoSimParallel, plot = TRUE) {
-
   # check user input
-  if(class(karyoSimParallel) != "karyoSimParallel") {
+  if (class(karyoSimParallel) != "karyoSimParallel") {
     stop("An object of class karyoSimParallel must be provided")
   }
 
@@ -52,8 +51,7 @@ plotFirstMisseg <- function(karyoSimParallel, plot = TRUE) {
     mutate(deviation = 100 * deviation)
 
   # plot, otherwise return tibble
-  if(plot) {
-
+  if (plot) {
     p <- first_misseg %>%
       ggplot(aes(x = g, y = deviation)) +
       ggbeeswarm::geom_quasirandom(alpha = 0.5, col = "grey") +
@@ -61,16 +59,18 @@ plotFirstMisseg <- function(karyoSimParallel, plot = TRUE) {
       stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.5, size = 1) +
       stat_summary(fun.y = mean, geom = "point", size = 2) +
       scale_x_continuous(breaks = seq(1, max(first_misseg$g), by = 1)) +
-      scale_y_continuous(breaks = seq(0, 100, by = 10),
-                         limits = c(0, max(first_misseg$deviation))) +
-      labs(x = "Generation", y = "Deviation from modal copy (%)",
-           title = "Modal deviation relative to time of first mis-segregation") +
+      scale_y_continuous(
+        breaks = seq(0, 100, by = 10),
+        limits = c(0, max(first_misseg$deviation))
+      ) +
+      labs(
+        x = "Generation", y = "Deviation from modal copy (%)",
+        title = "Modal deviation relative to time of first mis-segregation"
+      ) +
       cinsim_theme()
 
     return(p)
-
   } else {
     return(first_misseg)
   }
-
 }

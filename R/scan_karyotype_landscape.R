@@ -60,23 +60,24 @@ scan_karyotype_landscape <- function(experiment_name = "karyotype_landscape_scan
                                      down_sample = 5e+04,
                                      down_sample_frac = 0.25,
                                      max_num_cells = 1e+10) {
-
   # apply default Mps1-based selection
-  if(is.null(selection_mode)) {
+  if (is.null(selection_mode)) {
     selection_mode <- "cn_based"
   }
-  if(is.null(selection_metric)) {
+  if (is.null(selection_metric)) {
     selection_metric <- CINsim::Mps1_X
   }
 
   # set up coefficient list
-  coefs <- make_cinsim_coeffcients(selection_metric = selection_metric,
-                                   euploid_copy = euploid_ref,
-                                   min_survival_euploid = min_survival_euploid,
-                                   max_survival_euploid = max_survival_euploid,
-                                   max_survival = max_survival,
-                                   interval = interval,
-                                   probability_types = probability_types)
+  coefs <- make_cinsim_coeffcients(
+    selection_metric = selection_metric,
+    euploid_copy = euploid_ref,
+    min_survival_euploid = min_survival_euploid,
+    max_survival_euploid = max_survival_euploid,
+    max_survival = max_survival,
+    interval = interval,
+    probability_types = probability_types
+  )
 
   # create directory to store files
   dir.create(experiment_name)
@@ -85,7 +86,7 @@ scan_karyotype_landscape <- function(experiment_name = "karyotype_landscape_scan
   dir.create(results_dir)
 
   # check input
-  if("pDivision" %in% probability_types) {
+  if ("pDivision" %in% probability_types) {
     pDivision <- 0 # this may seem counterintuitive, but if karyotype-dependent division is enabled
     # pDivision is the minimum probability cells need to have before dividing
   }
@@ -94,33 +95,34 @@ scan_karyotype_landscape <- function(experiment_name = "karyotype_landscape_scan
   sim_res_list <- list()
 
   # run simulations and loop through all coefficients sets
-  for(coefficient_set in names(coefs)) {
-
+  for (coefficient_set in names(coefs)) {
     # progress message
     message("Running coefficient set ", coefficient_set)
 
     # run multiple replicate simulations for a range of pMissegs,
     # using the sample-specific coefficients and selection metric
-    sim_data <- parallelCinsim(karyotypes = karyotypes,
-                               g = g,
-                               pMisseg = rep(pMisseg, each = iterations),
-                               pWGD = pWGD,
-                               pMissegG = pMissegG,
-                               fit_misseg = fit_misseg,
-                               pDivision = pDivision,
-                               fit_division = fit_division,
-                               coef = coefs[[coefficient_set]],
-                               copy_num_boundaries = copy_num_boundaries,
-                               selection_mode = selection_mode,
-                               selection_metric = selection_metric,
-                               chrom_weights = chrom_weights,
-                               qMods = qMods,
-                               max_monosomy = max_monosomy,
-                               min_euploid = min_euploid,
-                               down_sample = down_sample,
-                               down_sample_frac = down_sample_frac,
-                               max_num_cells = max_num_cells,
-                               collect_fitness_score = TRUE)
+    sim_data <- parallelCinsim(
+      karyotypes = karyotypes,
+      g = g,
+      pMisseg = rep(pMisseg, each = iterations),
+      pWGD = pWGD,
+      pMissegG = pMissegG,
+      fit_misseg = fit_misseg,
+      pDivision = pDivision,
+      fit_division = fit_division,
+      coef = coefs[[coefficient_set]],
+      copy_num_boundaries = copy_num_boundaries,
+      selection_mode = selection_mode,
+      selection_metric = selection_metric,
+      chrom_weights = chrom_weights,
+      qMods = qMods,
+      max_monosomy = max_monosomy,
+      min_euploid = min_euploid,
+      down_sample = down_sample,
+      down_sample_frac = down_sample_frac,
+      max_num_cells = max_num_cells,
+      collect_fitness_score = TRUE
+    )
 
     save(sim_data, file = paste0(results_dir, "/", coefficient_set, "_sim_data.RData"))
 
@@ -141,17 +143,17 @@ scan_karyotype_landscape <- function(experiment_name = "karyotype_landscape_scan
       inner_join(pMisseg_info, by = "sim_label")
 
     # compiled results
-    sim_res <- (list(compiled_data = compiled_data,
-                     karyotype_scores = karyotype_scores))
+    sim_res <- (list(
+      compiled_data = compiled_data,
+      karyotype_scores = karyotype_scores
+    ))
 
     # store to list
     sim_res_list[[coefficient_set]] <- sim_res
-
   }
   save(sim_res_list, file = paste0(results_dir, experiment_name, "_results.RData"))
   class(sim_res_list) <- "karyotype_landscape_scan"
   return(sim_res_list)
-
 }
 
 #' Summarizing karyotype landscape scanning output
@@ -166,9 +168,8 @@ scan_karyotype_landscape <- function(experiment_name = "karyotype_landscape_scan
 
 
 summarize_karyotype_landscape_scan <- function(karyotype_landscape_scan) {
-
   # check userinput
-  if(class(karyotype_landscape_scan) != "karyotype_landscape_scan") {
+  if (class(karyotype_landscape_scan) != "karyotype_landscape_scan") {
     stop("An object of class karyotype_landscape_scan must be provided")
   }
 
@@ -183,6 +184,4 @@ summarize_karyotype_landscape_scan <- function(karyotype_landscape_scan) {
     mean(na.rm = TRUE)
   karyotype_scores %>%
     mutate(distance = abs(mean_population_score - baseline_score))
-
-
 }

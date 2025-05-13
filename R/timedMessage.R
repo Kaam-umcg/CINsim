@@ -5,12 +5,10 @@
 #' @author Aaron Taudt
 
 startTimedMessage <- function(...) {
-
-	x <- paste0(..., collapse='')
-	message(x, appendLF=FALSE)
-	ptm <- proc.time()
-	return(ptm)
-
+  x <- paste0(..., collapse = "")
+  message(x, appendLF = FALSE)
+  ptm <- proc.time()
+  return(ptm)
 }
 
 #' Stop a timed message
@@ -20,8 +18,6 @@ startTimedMessage <- function(...) {
 #' @author Aaron Taudt
 
 stopTimedMessage <- function(ptm) {
-
-	time <- proc.time() - ptm
-	message(" ", round(time[3],2), "s")
-
+  time <- proc.time() - ptm
+  message(" ", round(time[3], 2), "s")
 }

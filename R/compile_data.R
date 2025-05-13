@@ -12,14 +12,13 @@
 
 compile_karyoSim <- function(karyoSim,
                              sim_label = NULL) {
-
   # check user input
-  if(class(karyoSim) != "karyoSim") {
+  if (class(karyoSim) != "karyoSim") {
     stop("An object of class karyoSim is required")
   }
 
   # check sim labels, otherwise use the names of the elements in list
-  if(is.null(sim_label)) {
+  if (is.null(sim_label)) {
     sim_label <- "sim"
   }
 
@@ -36,22 +35,29 @@ compile_karyoSim <- function(karyoSim,
     summarize(value = mean(value, na.rm = TRUE)) %>%
     ungroup() %>%
     remove_missing(na.rm = TRUE) %>%
-    mutate(sim_label = sim_label,
-           parameter = factor(parameter, levels = c("aneuploidy",
-                                                    "heterogeneity",
-                                                    "deviation")))
+    mutate(
+      sim_label = sim_label,
+      parameter = factor(parameter, levels = c(
+        "aneuploidy",
+        "heterogeneity",
+        "deviation"
+      ))
+    )
 
   gen_measures <- karyoSim$gen_measures %>%
     gather(-g, key = "parameter", value = "value") %>%
-    mutate(sim_label = sim_label,
-           value = as.numeric(value))
+    mutate(
+      sim_label = sim_label,
+      value = as.numeric(value)
+    )
 
   # return list
-  compiled_data <- list(pop_measures_chrom = pop_measures_chrom,
-                        pop_measures_gw = pop_measures_gw,
-                        gen_measures = gen_measures)
+  compiled_data <- list(
+    pop_measures_chrom = pop_measures_chrom,
+    pop_measures_gw = pop_measures_gw,
+    gen_measures = gen_measures
+  )
   return(compiled_data)
-
 }
 
 #' Compile data from a list of parallel simulations
@@ -70,16 +76,15 @@ compile_karyoSim <- function(karyoSim,
 compile_karyoSimParallel <- function(karyoSimParallel,
                                      sim_label = NULL,
                                      for_summary = FALSE) {
-
   # check user input
-  if(class(karyoSimParallel) != "karyoSimParallel") {
+  if (class(karyoSimParallel) != "karyoSimParallel") {
     stop("An object of class karyoSimParallel is required")
   }
 
   # check sim labels, otherwise use the names of the elements in list
-  if(is.null(sim_label) & is.null(names(karyoSimParallel))) {
+  if (is.null(sim_label) & is.null(names(karyoSimParallel))) {
     sim_label <- paste("set", 1:length(karyoSimParallel), sep = "_")
-  } else if(is.null(sim_label)) {
+  } else if (is.null(sim_label)) {
     sim_label <- names(karyoSimParallel)
   }
 
@@ -98,12 +103,13 @@ compile_karyoSimParallel <- function(karyoSimParallel,
         mutate(sim_label = y)
     })
 
-  compiled_data <- list(pop_measures = pop_measures,
-                        gen_measures = gen_measures)
+  compiled_data <- list(
+    pop_measures = pop_measures,
+    gen_measures = gen_measures
+  )
 
   # return list
-  if(for_summary) {
-
+  if (for_summary) {
     # gather per chromosome and genomewide information
     pop_measures_chrom <- compiled_data$pop_measures %>%
       unnest(measures) %>%
@@ -116,11 +122,13 @@ compile_karyoSimParallel <- function(karyoSimParallel,
       group_by(g, parameter, sim_label) %>%
       summarize(value = mean(value, na.rm = TRUE)) %>%
       ungroup() %>%
-      #replace_na(list(mean_value = 0, sd_value = 0)) %>%
+      # replace_na(list(mean_value = 0, sd_value = 0)) %>%
       remove_missing(na.rm = TRUE) %>%
-      mutate(parameter = factor(parameter, levels = c("aneuploidy",
-                                                      "heterogeneity",
-                                                      "deviation"))) %>%
+      mutate(parameter = factor(parameter, levels = c(
+        "aneuploidy",
+        "heterogeneity",
+        "deviation"
+      ))) %>%
       select(g, parameter, value, sim_label)
 
     gen_measures <- compiled_data$gen_measures %>%
@@ -129,17 +137,15 @@ compile_karyoSimParallel <- function(karyoSimParallel,
       mutate(value = as.numeric(value))
 
     # return compiled list
-    compiled_data <- list(pop_measures_chrom = pop_measures_chrom,
-                          pop_measures_gw = pop_measures_gw,
-                          gen_measures = gen_measures)
+    compiled_data <- list(
+      pop_measures_chrom = pop_measures_chrom,
+      pop_measures_gw = pop_measures_gw,
+      gen_measures = gen_measures
+    )
     return(compiled_data)
-
   } else {
-
     return(compiled_data)
-
   }
-
 }
 
 #' Summarize population metrics of a karyoSimParallel object
@@ -155,29 +161,30 @@ compile_karyoSimParallel <- function(karyoSimParallel,
 #' @export
 
 summarize_karyoSimParallel <- function(karyoSimParallel, sim_label = NULL) {
-
   # check user input
-  if(class(karyoSimParallel) != "karyoSimParallel") {
+  if (class(karyoSimParallel) != "karyoSimParallel") {
     stop("An object of class karyoSimParallel is required")
   }
 
   # check sim labels, otherwise use the names of the elements in list
-  if(is.null(sim_label)) {
+  if (is.null(sim_label)) {
     sim_label <- "summary"
   }
 
   # compile data
-  compiled_data = compile_karyoSimParallel(karyoSimParallel, for_summary = TRUE)
+  compiled_data <- compile_karyoSimParallel(karyoSimParallel, for_summary = TRUE)
 
   # summarize generation measures
   gen_measures <- compiled_data$gen_measures %>%
     select(-sim_label) %>%
     gather(-g, key = "parameter", value = "value") %>%
     group_by(g, parameter) %>%
-    summarize(mean_value = mean(value, na.rm = TRUE),
-              sd_value = sd(value, na.rm = TRUE)) %>%
+    summarize(
+      mean_value = mean(value, na.rm = TRUE),
+      sd_value = sd(value, na.rm = TRUE)
+    ) %>%
     ungroup() %>%
-    #replace_na(list(mean_value = 0, sd_value = 0)) %>%
+    # replace_na(list(mean_value = 0, sd_value = 0)) %>%
     remove_missing(na.rm = TRUE) %>%
     mutate(sim_label = sim_label)
 
@@ -189,37 +196,50 @@ summarize_karyoSimParallel <- function(karyoSimParallel, sim_label = NULL) {
 
   pop_measures_chrom <- pop_measures %>%
     group_by(g, chromosome, parameter) %>%
-    summarize(mean_value = mean(value, na.rm = TRUE),
-              sd_value = sd(value, na.rm = TRUE)) %>%
+    summarize(
+      mean_value = mean(value, na.rm = TRUE),
+      sd_value = sd(value, na.rm = TRUE)
+    ) %>%
     ungroup() %>%
-    #replace_na(list(mean_value = 0, sd_value = 0)) %>%
+    # replace_na(list(mean_value = 0, sd_value = 0)) %>%
     remove_missing(na.rm = TRUE) %>%
-    mutate(sim_label = sim_label,
-           parameter = factor(parameter, levels = c("aneuploidy",
-                                                    "heterogeneity",
-                                                    "deviation")))
+    mutate(
+      sim_label = sim_label,
+      parameter = factor(parameter, levels = c(
+        "aneuploidy",
+        "heterogeneity",
+        "deviation"
+      ))
+    )
 
   # summarize population measures genomewide
   pop_measures_gw <- pop_measures %>%
     group_by(g, parameter) %>%
-    summarize(mean_value = mean(value, na.rm = TRUE),
-              sd_value = sd(value, na.rm = TRUE)) %>%
+    summarize(
+      mean_value = mean(value, na.rm = TRUE),
+      sd_value = sd(value, na.rm = TRUE)
+    ) %>%
     ungroup() %>%
-    #replace_na(list(mean_value = 0, sd_value = 0)) %>%
+    # replace_na(list(mean_value = 0, sd_value = 0)) %>%
     remove_missing(na.rm = TRUE) %>%
-    mutate(sim_label = sim_label,
-           parameter = factor(parameter, levels = c("aneuploidy",
-                                                    "heterogeneity",
-                                                    "deviation")))
+    mutate(
+      sim_label = sim_label,
+      parameter = factor(parameter, levels = c(
+        "aneuploidy",
+        "heterogeneity",
+        "deviation"
+      ))
+    )
 
   # compile data into a single list
-  compiled_data <- list(gen_measures = gen_measures,
-                        pop_measures_chrom = pop_measures_chrom,
-                        pop_measures_gw = pop_measures_gw)
+  compiled_data <- list(
+    gen_measures = gen_measures,
+    pop_measures_chrom = pop_measures_chrom,
+    pop_measures_gw = pop_measures_gw
+  )
 
   class(compiled_data) <- "karyoSimSummary"
   return(compiled_data)
-
 }
 
 #' Summarize population metrics of multiple karyoSimParallel objects
@@ -235,19 +255,18 @@ summarize_karyoSimParallel <- function(karyoSimParallel, sim_label = NULL) {
 #' @export
 
 summarize_karyoSimParallel_list <- function(karyoSimParallel, sim_label = NULL) {
-
   # check user input
   object_class <- purrr::map_chr(karyoSimParallel, class)
-  if(any(object_class != "karyoSimParallel")) {
+  if (any(object_class != "karyoSimParallel")) {
     stop("A list with objects of class karyoSimParallel is required")
   }
 
   # check sim_label names
-  if(is.null(sim_label) & is.null(names(karyoSimParallel))) {
+  if (is.null(sim_label) & is.null(names(karyoSimParallel))) {
     sim_label <- paste0("sim_", 1:length(karyoSimParallel))
-  } else if(is.null(sim_label)) {
+  } else if (is.null(sim_label)) {
     sim_label <- names(karyoSimParallel)
-  } else if(length(sim_label) != length(karyoSimParallel)) {
+  } else if (length(sim_label) != length(karyoSimParallel)) {
     message("Length of sim_labels inconsistent with length of list - using default labels")
     sim_label <- paste0("sim_", 1:length(karyoSimParallel))
   }
@@ -256,20 +275,21 @@ summarize_karyoSimParallel_list <- function(karyoSimParallel, sim_label = NULL) 
   summarized_data <- purrr::map2(karyoSimParallel, sim_label, function(x, y) {
     summarize_karyoSimParallel(karyoSimParallel = x, sim_label = y)
   })
-  compiled_data <- list(gen_measures = summarized_data %>%
-                          purrr::map("gen_measures") %>%
-                          bind_rows(),
-                        pop_measures_chrom = summarized_data %>%
-                          purrr::map("pop_measures_chrom") %>%
-                          bind_rows(),
-                        pop_measures_gw = summarized_data %>%
-                          purrr::map("pop_measures_gw") %>%
-                          bind_rows())
+  compiled_data <- list(
+    gen_measures = summarized_data %>%
+      purrr::map("gen_measures") %>%
+      bind_rows(),
+    pop_measures_chrom = summarized_data %>%
+      purrr::map("pop_measures_chrom") %>%
+      bind_rows(),
+    pop_measures_gw = summarized_data %>%
+      purrr::map("pop_measures_gw") %>%
+      bind_rows()
+  )
 
   # return compiled data
   class(compiled_data) <- "karyoSimSummary"
   return(compiled_data)
-
 }
 
 #' Compile the metrics of multiple karyoSimParallel objects within distinct inputs (i.e. non-replicates)
@@ -286,19 +306,18 @@ summarize_karyoSimParallel_list <- function(karyoSimParallel, sim_label = NULL) 
 #' @export
 
 compile_iterative_karyoSimParallel <- function(karyoSimParallel, sim_label = NULL) {
-
   # check user input
   object_class <- purrr::map_chr(karyoSimParallel, class)
-  if(any(object_class != "karyoSimParallel")) {
+  if (any(object_class != "karyoSimParallel")) {
     stop("A list with objects of class karyoSimParallel is required")
   }
 
   # check sim_label names
-  if(is.null(sim_label) & is.null(names(karyoSimParallel))) {
+  if (is.null(sim_label) & is.null(names(karyoSimParallel))) {
     sim_label <- paste0("rep_", 1:length(karyoSimParallel))
-  } else if(is.null(sim_label)) {
+  } else if (is.null(sim_label)) {
     sim_label <- names(karyoSimParallel)
-  } else if(length(sim_label) != length(karyoSimParallel)) {
+  } else if (length(sim_label) != length(karyoSimParallel)) {
     message("Length of sim_labels inconsistent with length of list - using default labels")
     sim_label <- paste0("rep_", 1:length(karyoSimParallel))
   }
@@ -309,9 +328,11 @@ compile_iterative_karyoSimParallel <- function(karyoSimParallel, sim_label = NUL
       purrr::map("sim_info") %>%
       purrr::map2_df(names(x1), function(y1, y2) {
         p_misseg <- y1["pMisseg"] %>% as.numeric()
-        tibble(rep = x2,
-               sim = y2,
-               p_misseg = p_misseg)
+        tibble(
+          rep = x2,
+          sim = y2,
+          p_misseg = p_misseg
+        )
       })
   }) %>%
     mutate(sim_label = paste(rep, sim, sep = "-"))
@@ -343,17 +364,18 @@ compile_iterative_karyoSimParallel <- function(karyoSimParallel, sim_label = NUL
     unnest()
 
   # compile it all
-  compiled_data_complete <- list(pop_measures_gw = compiled_data %>%
-                                   purrr::map_df("pop_measures_gw"),
-                                 pop_measures_chrom = compiled_data %>%
-                                   purrr::map_df("pop_measures_chrom"),
-                                 gen_measures = compiled_data %>%
-                                   purrr::map_df("gen_measures"),
-                                 cn_freq = cn_data) %>%
+  compiled_data_complete <- list(
+    pop_measures_gw = compiled_data %>%
+      purrr::map_df("pop_measures_gw"),
+    pop_measures_chrom = compiled_data %>%
+      purrr::map_df("pop_measures_chrom"),
+    gen_measures = compiled_data %>%
+      purrr::map_df("gen_measures"),
+    cn_freq = cn_data
+  ) %>%
     map(function(x) {
       x %>% select(-sim_label)
     })
   class(compiled_data_complete) <- "karyoSimParallel_iterative_summarized"
   return(compiled_data_complete)
-
 }

@@ -8,7 +8,7 @@
 #' @export
 
 get_final_CnFS <- function(sim_results) {
-  if (!class(sim_results) == "karyoSim"){
+  if (!class(sim_results) == "karyoSim") {
     message("Incorrect type for given object, needs to be karyoSim")
     return(FALSE)
   }
@@ -18,7 +18,7 @@ get_final_CnFS <- function(sim_results) {
 
   # checks whether this simulation had a selection metric - if not, returns
   # a message and 0
-  if (is.null(karyo_obs)){
+  if (is.null(karyo_obs)) {
     message("There was no selection metric found for the simulation, therefore
 the CnFS cannot be calculated. Setting CnFS to 0.")
     return(0)
@@ -32,22 +32,24 @@ the CnFS cannot be calculated. Setting CnFS to 0.")
   karyo_sim_final <- sim_results$pop_measures[sim_results$pop_measures$g == final_g, ]
 
   # calculates the CnFS (Copy number Frequency Score) for the final generation
-  for (chrom in colnames(karyo_obs)){
+  for (chrom in colnames(karyo_obs)) {
     # early exit for X, since we skip that chrom for the CnFS
-    if (chrom == "X"){next}
+    if (chrom == "X") {
+      next
+    }
 
     # cast to int as we need it for comparisons
     chrom <- as.integer(chrom)
     chrom_df <- karyo_sim_final[karyo_sim_final$chromosome == chrom, ]
 
-    for (cn in rownames(karyo_obs)){
+    for (cn in rownames(karyo_obs)) {
       freq_obs <- karyo_obs[as.character(cn), as.character(chrom)]
 
       # test whether there is a value for cn in chrom_df,
       # if not we assign it as 0.
-      if (!(as.integer(cn) %in% chrom_df$copy)){
+      if (!(as.integer(cn) %in% chrom_df$copy)) {
         freq_sim <- 0
-      }else{
+      } else {
         freq_sim <- chrom_df[chrom_df$copy == as.integer(cn), ]$cn_freq[[1]][["freq"]]
       }
 
@@ -72,7 +74,7 @@ the CnFS cannot be calculated. Setting CnFS to 0.")
 #' @export
 calc_CnFS <- function(karyotypes, selection_metric) {
   # checks whether the dimensions of karyos and selection metric match
-  if (!(length(karyotypes[1, ]) == length(selection_metric[1, ]))){
+  if (!(length(karyotypes[1, ]) == length(selection_metric[1, ]))) {
     message("Your selection metric and karyotypes don't have the same
             amount of chromosomes! Cannot calculate CnFS, setting to 0")
     return(0)
@@ -82,32 +84,40 @@ calc_CnFS <- function(karyotypes, selection_metric) {
   inverse_CnFS <- 0
 
   # gets the observed frequencies from the karyotypes
-  freq_per_chrom <-  apply(karyotypes, 2, function(col) {
+  freq_per_chrom <- apply(karyotypes, 2, function(col) {
     prop_table <- table(col, useNA = "no") / length(col)
     return(prop_table)
   })
   # if every chrom has a value for each CN we can skip the following steps
+  # we checks for class as if every CN is present, we get a matrix
+  # otherwise we get a list of lists as the dimensions don't match, in which
+  # case we need to run through the following code to unpack
   if (!((c("matrix") %in% class(freq_per_chrom) &
-      c("array") %in% class(freq_per_chrom)))){
-
+    c("array") %in% class(freq_per_chrom)))) {
     # Ensure all CN values are represented
     all_cn_values <- paste0(min(karyotypes):max(karyotypes))
 
     # Create an empty matrix with all chromosomes and CN values
     chromosomes_list <- names(freq_per_chrom)
 
-    if (is.null(chromosomes_list)){
+    if (is.null(chromosomes_list)) {
       chromosomes_list <- colnames(freq_per_chrom)
     }
-    freq_matrix_full <- matrix(0, nrow = length(chromosomes_list), ncol = length(all_cn_values),
-                               dimnames = list(chromosomes_list,
-                                               paste0(min(as.integer(all_cn_values)):max(as.integer(all_cn_values)))))
+    freq_matrix_full <- matrix(0,
+      nrow = length(chromosomes_list), ncol = length(all_cn_values),
+      dimnames = list(
+        chromosomes_list,
+        paste0(min(as.integer(all_cn_values)):max(as.integer(all_cn_values)))
+      )
+    )
 
     # Fill in the matrix with the actual frequencies from the list of tables
     for (i in 1:length(freq_per_chrom)) {
       chrom_name <- names(freq_per_chrom)[i]
       # same story for this conditional
-      if (is.null(chrom_name)){chrom_name <- colnames(freq_per_chrom)[i]}
+      if (is.null(chrom_name)) {
+        chrom_name <- colnames(freq_per_chrom)[i]
+      }
       chrom_data <- freq_per_chrom[[i]]
 
       for (cn in names(chrom_data)) {
@@ -119,10 +129,12 @@ calc_CnFS <- function(karyotypes, selection_metric) {
   }
 
   # calculates the CnFS (Copy number Frequency Score)
-  for (chrom in colnames(selection_metric)){
-    # early exit for X, since we skip that chrom for the CnFS
-    if (chrom == "X"){next}
-    for (cn in rownames(selection_metric)){
+  for (chrom in colnames(selection_metric)) {
+    # early exit for X, since we skip that chromosome for the CnFS
+    if (chrom == "X") {
+      next
+    }
+    for (cn in rownames(selection_metric)) {
       # gets the frequency of a CN for a chromosome from the simulation
       freq_sim <- freq_per_chrom[, chrom] %>%
         purrr::pluck(cn, .default = 0) # gives 0 if it doesn't exist/out of bounds
@@ -141,11 +153,12 @@ calc_CnFS <- function(karyotypes, selection_metric) {
   return(CnFS)
 }
 
+#' @title Calcualte KMS from karyotype & population measures
 #' Calculate the Karyotype Matching Score (KMS) given a set of karyotypes
-#' and a selection metric as used by CINsim
+#' and observed aneuploidy/heterogeneity scores of the simulated population.
 #'
 #' @param karyotypes karyotypes as given from CINsim functions
-#' @param selection_metric Selection metric as used in CINsim
+#' @param pop_measures Selection metric as used in CINsim
 #' @return The Copy number Frequency Score (CnFS)
 #' @author Alex van Kaam
 #' @export
@@ -161,11 +174,13 @@ calc_KMS <- function(karyotypes, pop_measures) {
   # inits the KMS, smaller is better
   inverse_KMS <- 0
 
-  for (chrom in names(aneu_sim)){
+  for (chrom in names(aneu_sim)) {
     # calculates the score for a single chrom
-    if (chrom == "X"){next}
+    if (chrom == "X") {
+      next
+    }
     inverse_KMS_score <- (aneu_pop[[as.integer(chrom)]] - aneu_sim[[as.integer(chrom)]])^2 +
-                         (het_pop[[as.integer(chrom)]] - het_sim[[as.integer(chrom)]])^2
+      (het_pop[[as.integer(chrom)]] - het_sim[[as.integer(chrom)]])^2
 
     inverse_KMS <- inverse_KMS + inverse_KMS_score
   }
