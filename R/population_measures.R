@@ -54,6 +54,15 @@ population_measures <- function(karyotypes = NULL, euploid_ref = 2, g = NULL) {
     mutate(freq = n / sum(n)) %>%
     nest(clone_freq = c(n, freq))
 
+  # in case clon_freq has multiple subclones we need to reshape the tibble
+  # to a single row
+  if (dim(clon_freq)[1] > 1){
+    clon_freq <- tibble(
+      cell_id = list(clon_freq$cell_id),
+      clone_freq = list(clon_freq$clone_freq)
+    )
+  }
+
   # combine all data into a single nested data frame
   pop_measures <- bind_cols(karyotype_measures, cn_freq, clon_freq) %>%
     mutate(g = g)

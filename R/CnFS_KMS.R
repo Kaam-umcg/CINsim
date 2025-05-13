@@ -162,23 +162,20 @@ calc_CnFS <- function(karyotypes, selection_metric) {
 #' @return The Copy number Frequency Score (CnFS)
 #' @author Alex van Kaam
 #' @export
-calc_KMS <- function(karyotypes, pop_measures) {
+calc_KMS <- function(karyotypes, pop_measures, euploid_ref = 2) {
   # gets the aneu and het scores for the given karyos
-  aneu_sim <- qAneuploidy(karyotypes)
-  het_sim <- qHeterogeneity(karyotypes)
+  aneu_sim <- as.vector(qAneuploidy(karyotypes, euploid_ref = euploid_ref))
+  het_sim <- as.vector(qHeterogeneity(karyotypes))
 
-  # reshapes the pop_measures object to separate vars and aligns naming
+  # reshapes the pop_measures object to separate vars
   aneu_pop <- pop_measures[pop_measures$parameter == "aneuploidy", ]$score
   het_pop <- pop_measures[pop_measures$parameter == "heterogeneity", ]$score
 
   # inits the KMS, smaller is better
   inverse_KMS <- 0
 
-  for (chrom in names(aneu_sim)) {
+  for (chrom in seq_along(1:(length(aneu_sim) - 1))) { # -1 for skipping X
     # calculates the score for a single chrom
-    if (chrom == "X") {
-      next
-    }
     inverse_KMS_score <- (aneu_pop[[as.integer(chrom)]] - aneu_sim[[as.integer(chrom)]])^2 +
       (het_pop[[as.integer(chrom)]] - het_sim[[as.integer(chrom)]])^2
 
