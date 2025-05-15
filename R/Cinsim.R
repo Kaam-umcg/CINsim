@@ -65,6 +65,12 @@ Cinsim <- function(karyotypes = NULL,
     ptm <- startTimedMessage("Initializing simulation ...")
   }
 
+  # check user input for pMisseg
+  if (pMisseg >= 1 | pMisseg <= 0){
+    message("pMisseg was an impossible value - setting to default (0.0025)")
+    pMisseg <- 0.0025
+  }
+
   # check user input for karyotypes
   if (is.null(karyotypes)) {
     # generate a mouse karyotype if none is provided
@@ -138,20 +144,31 @@ Cinsim <- function(karyotypes = NULL,
   misseg_freq <- vector(mode = "list", length = g)
 
   # check status of pdivision, and whether to apply asynchronous cell divisions
-  if (pDivision == 1) {
-    if (fit_division == FALSE) {
-      asynch <- FALSE
-    } else {
-      asynch <- TRUE
+  # if (pDivision == 1) {
+  #   if (fit_division == FALSE) {
+  #     asynch <- FALSE
+  #   } else {
+  #     asynch <- TRUE
+  #   }
+  # } else {
+  #   if (pDivision == 0 & fit_division == FALSE) {
+  #     asynch <- TRUE
+  #     pDivision <- 0.9
+  #     message("pDivision must be greater than 0, applying default of 0.9")
+  #   } else {
+  #     asynch <- TRUE
+  #   }
+  # }
+
+  # check status of pdivision, and whether to apply asynchronous cell divisions
+  if (fit_division){
+    asynch = TRUE
+    if (pDivision != 0){
+      message("fit_division was set to TRUE - ignoring pDivision")
+      pDivision <- 0
     }
-  } else {
-    if (pDivision == 0 & fit_division == FALSE) {
-      asynch <- TRUE
-      pDivision <- 0.9
-      message("pDivision must be greater than 0, applying default of 0.9")
-    } else {
-      asynch <- TRUE
-    }
+  }else{
+    asynch = FALSE
   }
 
   # This feels very prone to bugs, as the conditionals
@@ -236,7 +253,9 @@ Cinsim <- function(karyotypes = NULL,
         # set pdivision to 0 if it is a negative number
         divider_pdiv <- ifelse(divider_pdiv <= 0, 0, divider_pdiv)
         # set pdivision to 0 if pdiv is below threshold
-        divider_pdiv <- ifelse(divider_pdiv >= pDivision, divider_pdiv, 0)
+        # the following line makes no sense for pDivision = 1, which
+        # is the standard case. Removing it
+        # divider_pdiv <- ifelse(divider_pdiv >= pDivision, divider_pdiv, 0)
         dividers <- runif(n = num_cells) < divider_pdiv
       } else {
         dividers <- runif(n = num_cells) < pDivision

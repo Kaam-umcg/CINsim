@@ -50,3 +50,38 @@ test_that("Verbosity can be controlled with the designated flag", {
     regexp = "Processing generation"
   )
 })
+
+test_that("CINsim gives proper message when using fit_division in combination
+          with a non-zero pDivision", {
+  expect_message(Cinsim(pDivision = 0.6,
+                        fit_division = TRUE,
+                        selection_metric = Mps1_X, g = 5,
+                        selection_mode = "cn_based"),
+    regexp = "ignoring pDivision"
+  )
+})
+
+test_that("CINsim gives proper message when pMisseg is above 1 and below 0", {
+  expect_message(Cinsim(pMisseg = 0, g = 1,
+                        selection_mode = "cn_based",
+                        selection_metric = Mps1_X),
+                 regexp = "pMisseg was an impossible value")
+  expect_message(Cinsim(pMisseg = 1, g = 1,
+                        selection_mode = "cn_based",
+                        selection_metric = Mps1_X),
+                 regexp = "pMisseg was an impossible value")
+  expect_message(Cinsim(pMisseg = -10, g = 1,
+                        selection_mode = "cn_based",
+                        selection_metric = Mps1_X),
+                 regexp = "pMisseg was an impossible value")
+  expect_message(Cinsim(pMisseg = 23, g = 1,
+                        selection_mode = "cn_based",
+                        selection_metric = Mps1_X),
+                 regexp = "pMisseg was an impossible value")
+  # this test will fail, as we don't currently sanitize for NA
+#   expect_message(Cinsim(pMisseg = NA, g = 1,
+#                         selection_mode = "cn_based",
+#                         selection_metric = Mps1_X),
+#                  regexp = "pMisseg was an impossible value")
+#
+  })

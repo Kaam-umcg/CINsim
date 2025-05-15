@@ -99,5 +99,3 @@ test_that("calc_KMS returns a correct value for multiple euploid cells", {
   # )
 })
 
-# Add test for checking whether calc_KMS properly allows for using
-# a euploid_ref that is not equal to 0

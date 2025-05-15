@@ -164,7 +164,7 @@ calc_CnFS <- function(karyotypes, selection_metric) {
 #' @export
 calc_KMS <- function(karyotypes, pop_measures, euploid_ref = 2) {
   # gets the aneu and het scores for the given karyos
-  aneu_sim <- as.vector(qAneuploidy(karyotypes, euploid_ref = euploid_ref))
+  aneu_sim <- as.vector(qAneuploidy(karyotypes, euploidRef = euploid_ref))
   het_sim <- as.vector(qHeterogeneity(karyotypes))
 
   # reshapes the pop_measures object to separate vars
