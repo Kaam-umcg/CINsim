@@ -148,7 +148,8 @@ calc_CnFS <- function(karyotypes, selection_metric) {
     }
   }
   # calculates the final CnFS from the inverse
-  CnFS <- 1 / inverse_CnFS
+  # we add 1 to bound the output between [0, 1]
+  CnFS <- 1 / (inverse_CnFS + 1)
 
   return(CnFS)
 }
