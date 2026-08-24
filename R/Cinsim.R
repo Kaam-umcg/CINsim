@@ -503,7 +503,9 @@ Cinsim <- function(karyotypes = NULL,
     min_euploid = min_euploid,
     down_sample = down_sample,
     down_sample_frac = down_sample_frac,
-    max_num_cells = max_num_cells
+    max_num_cells = max_num_cells,
+    monosomy_penalty = monosomy_penalty,
+    penalty_fraction = penalty_fraction
   )
 
   # make karyoSim object
