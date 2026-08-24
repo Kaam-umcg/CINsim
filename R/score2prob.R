@@ -12,7 +12,9 @@
 get_score <- function(karyotypes = NULL,
                       selection_mode = NULL,
                       selection_metric = NULL,
-                      chrom_weights = NULL) {
+                      chrom_weights = NULL,
+                      monosomy_penalty = FALSE,
+                      penalty_fraction = 0.1) {
   if (is.null(karyotypes) | is.null(selection_mode) | is.null(selection_metric)) {
     stop("Selection mode or metric required")
   }
@@ -29,6 +31,41 @@ get_score <- function(karyotypes = NULL,
     }
     sur_prob <- rowSums(probs)
 
+    if (monosomy_penalty){
+      modal_karyotype <- apply(
+        X = selection_metric,
+        MARGIN = 2, # apply over columns
+        FUN = function(col){
+            idx <- which.max(col)
+            rn <- rownames(selection_metric)[idx]
+            return(as.integer(rn))
+        })
+
+      # gets the maximum score possible for a cell
+      max_score <- get_score(
+        karyotypes = modal_karyotype,
+        selection_metric = selection_metric,
+        selection_mode = selection_mode,
+        chrom_weights = chrom_weights,
+        monosomy_penalty = FALSE)
+
+      is_monosomy_modal <- apply(
+        X = selection_metric,
+        MARGIN = 2, 
+        FUN = max) == selection_metric["1", ]
+      # gets the chromosomes where monosomy is modal
+      chroms_monosomy_modal <- colnames(is_monosomy_modal)[is_monosomy_modal]
+
+      # checks whether a cell has a monosomy
+      is_monosomy_present <- tibble::as_tibble(karyotypes == 1)
+
+      # dropping columns where monosomy is modal
+      is_monosomy_present <- is_monosomy_present %>%
+              dplyr::select(!chroms_monosomy_modal)
+      penalties <- rowSums(is_monosomy_present)
+
+      sur_prob <- sur_prb - (penalty_fraction * max_score) * penalties
+    }
     return(sur_prob)
   }
 
