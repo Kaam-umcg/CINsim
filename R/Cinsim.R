@@ -25,6 +25,8 @@
 #' @param collect_fitness_score A logical whether to collect the fitness scores over time.
 #' @param CnFS Boolean to indicate whether the CnFS should be calculated, defaults to TRUE
 #' @param KMS Boolean to indicate whether the KMS should be calculated, defaults to FALSE
+#' @param monosomy_penalty Boolean whether to apply extra score penalty for non-modal monosomies.
+#' @param penalty_fraction Expressed as a fraction between 0 and 1, how much of the maximum possible score a non-modal monosomy takes as penalty.
 #' @param final_aneu_het_scores The final population measures (heterogeneity & aneuploidy) required for calculating the KMS.
 #' @param verbose Degree of verbosity of CINsim, 0 means no verbosity
 #' @return A karyoSim object containing all relevant information of the simulation.

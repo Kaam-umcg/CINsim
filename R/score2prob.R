@@ -6,6 +6,8 @@
 #' @param selection_mode One of three possible modes, "cn_based", "rel_copy", "davoli", for copy number-based, relative copy numbed-based or Davoli-based selection.
 #' @param selection_metric A fitness metric for the cn_based, rel_copy or davoli selection measure.
 #' @param chrom_weights An optional vector of chromosome weights to affect cellular fitness.
+#' @param monosomy_penalty Boolean whether to apply extra score penalty for non-modal monosomies.
+#' @param penalty_fraction Expressed as a fraction between 0 and 1, how much of the maximum possible score a non-modal monosomy takes as penalty.
 #' @return A fitness score.
 #' @author Bjorn Bakker
 
