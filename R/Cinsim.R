@@ -54,6 +54,8 @@ Cinsim <- function(karyotypes = NULL,
                    collect_fitness_score = FALSE,
                    CnFS = TRUE,
                    KMS = FALSE,
+                   monosomy_penalty = FALSE,
+                   penalty_fraction = 0.1, 
                    final_aneu_het_scores = NULL,
                    verbose = 1) {
   if (verbose >= 1) {
@@ -248,7 +250,9 @@ Cinsim <- function(karyotypes = NULL,
           selection_metric = selection_metric,
           get_sur_probs = TRUE,
           a = coef$pDivision["a"], b = coef$pDivision["b"],
-          qMod = qMods[["pDivision"]]
+          qMod = qMods[["pDivision"]],
+          monosomy_penalty = monosomy_penalty,
+          penalty_fraction = penalty_fraction
         )
         # set pdivision to 0 if it is a negative number
         divider_pdiv <- ifelse(divider_pdiv <= 0, 0, divider_pdiv)
@@ -283,7 +287,9 @@ Cinsim <- function(karyotypes = NULL,
             selection_metric = selection_metric,
             get_sur_probs = TRUE,
             a = coef$pMisseg["a"], b = coef$pMisseg["a"],
-            qMod = qMods[["pMisseg"]]
+            qMod = qMods[["pMisseg"]],
+            monosomy_penalty = monosomy_penalty,
+            penalty_fraction = penalty_fraction
           )
         } else {
           pMissegs <- rep(pMisseg, times = num_dividers)
@@ -322,7 +328,9 @@ Cinsim <- function(karyotypes = NULL,
           selection_metric = selection_metric,
           get_sur_probs = TRUE,
           a = coef$pMisseg["a"], b = coef$pMisseg["b"],
-          qMod = qMods[["pMisseg"]]
+          qMod = qMods[["pMisseg"]],
+          monosomy_penalty = monosomy_penalty,
+          penalty_fraction = penalty_fraction
         )
       } else {
         pMissegs <- rep(pMisseg, times = num_cells)

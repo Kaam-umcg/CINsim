@@ -63,6 +63,8 @@ parallelCinsim <- function(iterations = 6,
                            collect_fitness_score = FALSE,
                            CnFS = TRUE,
                            KMS = FALSE,
+                           monosomy_penalty = FALSE,
+                           penalty_fraction = 0.1, 
                            final_aneu_het_scores = NULL,
                            verbose = 1) {
   # start timed message
@@ -164,9 +166,10 @@ parallelCinsim <- function(iterations = 6,
       collect_fitness_score = collect_fitness_score,
       CnFS = CnFS,
       KMS = KMS,
+      monosomy_penalty = monosomy_penalty,
+      penalty_fraction = penalty_fraction, 
       final_aneu_het_scores = final_aneu_het_scores,
-      verbose = verbose
-    )
+      verbose = verbose)
   }
   # only need to close if verbose was on
   if (verbose >= 1) {

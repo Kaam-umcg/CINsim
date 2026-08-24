@@ -13,14 +13,16 @@
 #' @param b The intercept coefficient for the selection paramater.
 #' @param get_sur_probs A logical whether to return the desired qMod, or return a survival probability.
 #' @param qMod A custom qMod to modify returned survival probablities.
+#' @param monosomy_penalty Boolean whether to apply extra score penalty for non-modal monosomies.
+#' @param penalty_fraction Expressed as a fraction between 0 and 1, how much of the maximum possible score a non-modal monosomy takes as penalty.
 #' @return A qMod value.
-#' @author Bjorn Bakker
+#' @author Bjorn Bakker, Alex van Kaam
 #' @export
 #'
 
 setQmod <- function(karyotype = NULL, desired_value = 0.9, chrom_weights = NULL,
                     selection_mode = NULL, selection_metric = NULL, a = NULL, b = NULL,
-                    get_sur_probs = FALSE, qMod = 1) {
+                    get_sur_probs = FALSE, qMod = 1, monosomy_penalty = FALSE, penalty_fraction = 0.1) {
   # check user input
   if (is.null(selection_mode) | is.null(selection_metric)) {
     stop("No selection mode or metric provided")
@@ -44,7 +46,9 @@ setQmod <- function(karyotype = NULL, desired_value = 0.9, chrom_weights = NULL,
       karyotypes = karyotype,
       selection_mode = selection_mode,
       selection_metric = selection_metric,
-      chrom_weights = chrom_weights
+      chrom_weights = chrom_weights,
+      monosomy_penalty = monosomy_penalty,
+      penalty_fraction = penalty_fraction
     )
 
     # calculate the probablity of survival
