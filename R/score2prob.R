@@ -34,14 +34,10 @@ get_score <- function(karyotypes = NULL,
     sur_prob <- rowSums(probs)
 
     if (monosomy_penalty){
-      modal_karyotype <- apply(
-        X = selection_metric,
-        MARGIN = 2, # apply over columns
-        FUN = function(col){
-            idx <- which.max(col)
-            rn <- rownames(selection_metric)[idx]
-            return(as.integer(rn))
-        })
+      # creates the highest scoring (modal CN for each chromosome)
+      # to determine the monosomy penalty to apply
+      modal_karyotype <- create_modal_karyotype(
+        selection_metric = selection_metric)
 
       # gets the maximum score possible for a cell
       max_score <- get_score(
@@ -281,4 +277,34 @@ make_cinsim_coeffcients <- function(selection_metric = NULL, euploid_copy = 2,
 
     return(coef_list)
   }
+}
+
+
+#' Creates a cell with modal karyotype
+#'
+#' This function creates a cell with modal copy number, given a selection metric as
+#' used within the CINsim package
+#'
+#' @param selection_metric The copy number frequency matrix.
+#' @return A single cell with modal copy number for each chromosome
+#' @import tidyverse
+#' @author Alex van Kaam
+#' @export
+create_modal_karyotype <- function(selection_metric){
+    # here we define the modal karyotype of the selection metric
+    modal_karyotype <- apply(
+        X = selection_metric,
+        MARGIN = 2, # apply over columns
+        FUN = function(col){
+            idx <- which.max(col)
+            rn <- rownames(selection_metric)[idx]
+            return(as.integer(rn))
+        }
+    )
+
+    modal_karyotype <- t(as.matrix(modal_karyotype))
+    colnames(modal_karyotype) <- colnames(selection_metric)
+    rownames(modal_karyotype) <- "cell_1"
+
+    return(modal_karyotype)
 }
