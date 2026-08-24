@@ -62,7 +62,7 @@ get_score <- function(karyotypes = NULL,
               dplyr::select(!chroms_monosomy_modal)
       penalties <- rowSums(is_monosomy_present)
 
-      sur_prob <- sur_prb - (penalty_fraction * max_score) * penalties
+      sur_prob <- sur_prob - (penalty_fraction * max_score) * penalties
     }
     return(sur_prob)
   }
