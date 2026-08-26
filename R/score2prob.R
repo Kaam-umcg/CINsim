@@ -6,10 +6,10 @@
 #' @param selection_mode One of three possible modes, "cn_based", "rel_copy", "davoli", for copy number-based, relative copy numbed-based or Davoli-based selection.
 #' @param selection_metric A fitness metric for the cn_based, rel_copy or davoli selection measure.
 #' @param chrom_weights An optional vector of chromosome weights to affect cellular fitness.
-#' @param monosomy_penalty Boolean whether to apply extra score penalty for non-modal monosomies.
+#' @param monosomy_penalty Boolean whether to apply extra score penalty for rare/non-modal monosomies.
 #' @param penalty_fraction Expressed as a fraction between 0 and 1, how much of the maximum possible score a non-modal monosomy takes as penalty.
 #' @return A fitness score.
-#' @author Bjorn Bakker
+#' @author Bjorn Bakker, Alex van Kaam
 
 get_score <- function(karyotypes = NULL,
                       selection_mode = NULL,
@@ -47,21 +47,29 @@ get_score <- function(karyotypes = NULL,
         chrom_weights = chrom_weights,
         monosomy_penalty = FALSE)
 
-      is_monosomy_modal <- apply(
-        X = selection_metric,
-        MARGIN = 2, 
-        FUN = max) == selection_metric["1", ]
-      # gets the chromosomes where monosomy is modal
-      chroms_monosomy_modal <- colnames(is_monosomy_modal)[is_monosomy_modal]
-
-      # checks whether a cell has a monosomy
-      is_monosomy_present <- tibble::as_tibble(karyotypes == 1)
-
-      # dropping columns where monosomy is modal
-      is_monosomy_present <- is_monosomy_present %>%
-              dplyr::select(!chroms_monosomy_modal)
-      penalties <- rowSums(is_monosomy_present)
-
+      # we want to scale the monosomy penalty based on how rare the monosomy
+      # is in the general population. We can do so by comparing the p_modal (chance of modal CN)
+      # against the p_mono (chance of monosomy) for each chromosome, giving us a weighting
+      # for how rare a monosomy is. We can then scale the applies penalty based on these weights
+      # gets the probability for the modal CN of each chromosome
+      p_modal <- apply(
+        X = selection_metric, 
+        FUN = max,
+        MARGIN = 2)
+      # and the probability for monosomic 
+      p_mono <- selection_metric["1", ]
+      
+      # and gets the weighted penalty based on the difference between the two
+      weighted_penalty <- (p_modal - p_mono) / p_modal
+      
+      is_monosomy_present <- karyotypes == 1
+      
+      penalties_per_chrom <- is_monosomy_present * rep(weighted_penalty , each = nrow(is_monosomy_present))
+      
+      # penalties is now the weighted count of monosomy instances per cell
+      penalties <- rowSums(penalties_per_chrom)
+      
+      # we can then apply these penalties to the scores
       sur_prob <- sur_prob - (penalty_fraction * max_score) * penalties
     }
     return(sur_prob)
