@@ -64,7 +64,8 @@ get_score <- function(karyotypes = NULL,
       
       is_monosomy_present <- karyotypes == 1
       
-      penalties_per_chrom <- is_monosomy_present * rep(weighted_penalty , each = nrow(is_monosomy_present))
+      # casting to numeric to make sure the line works well
+      penalties_per_chrom <- is_monosomy_present * as.numeric(rep(weighted_penalty, each = nrow(is_monosomy_present)))
       
       # penalties is now the weighted count of monosomy instances per cell
       penalties <- rowSums(penalties_per_chrom)
