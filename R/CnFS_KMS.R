@@ -185,3 +185,4 @@ calc_KMS <- function(karyotypes, pop_measures, euploid_ref = 2) {
   KMS <- 1 / inverse_KMS
   return(KMS)
 }
+

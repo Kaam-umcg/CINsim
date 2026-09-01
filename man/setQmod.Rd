@@ -13,7 +13,9 @@ setQmod(
   a = NULL,
   b = NULL,
   get_sur_probs = FALSE,
-  qMod = 1
+  qMod = 1,
+  monosomy_penalty = FALSE,
+  penalty_fraction = 0.1
 )
 }
 \arguments{
@@ -34,6 +36,10 @@ setQmod(
 \item{get_sur_probs}{A logical whether to return the desired qMod, or return a survival probability.}
 
 \item{qMod}{A custom qMod to modify returned survival probablities.}
+
+\item{monosomy_penalty}{Boolean whether to apply extra score penalty for non-modal monosomies.}
+
+\item{penalty_fraction}{Expressed as a fraction between 0 and 1, how much of the maximum possible score a non-modal monosomy takes as penalty.}
 }
 \value{
 A qMod value.
@@ -44,5 +50,5 @@ on the selection mode and metric for a specified karyotype (i.e. a euploid karyo
 it can be used to easily calculate survival probabilities for a collection of karyotypes.
 }
 \author{
-Bjorn Bakker
+Bjorn Bakker, Alex van Kaam
 }

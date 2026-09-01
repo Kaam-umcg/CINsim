@@ -28,6 +28,8 @@ Cinsim(
   collect_fitness_score = FALSE,
   CnFS = TRUE,
   KMS = FALSE,
+  monosomy_penalty = FALSE,
+  penalty_fraction = 0.1,
   final_aneu_het_scores = NULL,
   verbose = 1
 )
@@ -78,6 +80,10 @@ Cinsim(
 \item{CnFS}{Boolean to indicate whether the CnFS should be calculated, defaults to TRUE}
 
 \item{KMS}{Boolean to indicate whether the KMS should be calculated, defaults to FALSE}
+
+\item{monosomy_penalty}{Boolean whether to apply extra score penalty for non-modal monosomies.}
+
+\item{penalty_fraction}{Expressed as a fraction between 0 and 1, how much of the maximum possible score a non-modal monosomy takes as penalty.}
 
 \item{final_aneu_het_scores}{The final population measures (heterogeneity & aneuploidy) required for calculating the KMS.}
 

@@ -30,6 +30,8 @@ parallelCinsim(
   collect_fitness_score = FALSE,
   CnFS = TRUE,
   KMS = FALSE,
+  monosomy_penalty = FALSE,
+  penalty_fraction = 0.1,
   final_aneu_het_scores = NULL,
   verbose = 1
 )

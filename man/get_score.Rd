@@ -8,7 +8,9 @@ get_score(
   karyotypes = NULL,
   selection_mode = NULL,
   selection_metric = NULL,
-  chrom_weights = NULL
+  chrom_weights = NULL,
+  monosomy_penalty = FALSE,
+  penalty_fraction = 0.1
 )
 }
 \arguments{
@@ -17,6 +19,10 @@ get_score(
 \item{selection_metric}{A fitness metric for the cn_based, rel_copy or davoli selection measure.}
 
 \item{chrom_weights}{An optional vector of chromosome weights to affect cellular fitness.}
+
+\item{monosomy_penalty}{Boolean whether to apply extra score penalty for rare/non-modal monosomies.}
+
+\item{penalty_fraction}{Expressed as a fraction between 0 and 1, how much of the maximum possible score a non-modal monosomy takes as penalty.}
 
 \item{karyotyepes}{A matrix of karyotypes with chromosomes in columns and cells in rows.}
 }
@@ -27,5 +33,5 @@ A fitness score.
 This functions calculate the survival probability given a karyotype score according to specified coefficients.
 }
 \author{
-Bjorn Bakker
+Bjorn Bakker, Alex van Kaam
 }
