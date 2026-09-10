@@ -12,10 +12,12 @@
 #' @param max_monosomy The maximum number of allowed chromosome sets to be monosomic.
 #' @param min_euploid The minimum number of required chromosome sets to be euploid.
 #' @param euploid_ref The euploid copy number state.
+#' @param monosomy_penalty Boolean whether to apply extra score penalty for non-modal monosomies.
+#' @param penalty_fraction Expressed as a fraction between 0 and 1, how much of the maximum possible score a non-modal monosomy takes as penalty.
 #' @param qMod A modifier for the survival probability.
 #' @return A vector of logicals whether the cells have survived or not.
 #' @export
-#' @author Bjorn Bakker
+#' @author Bjorn Bakker, Alex van Kaam
 
 karyotype_survival <- function(karyotypes,
                                copy_num_boundaries = c(1, 8),
@@ -26,6 +28,8 @@ karyotype_survival <- function(karyotypes,
                                max_monosomy = NULL,
                                min_euploid = NULL,
                                euploid_ref = 2,
+                               monosomy_penalty = FALSE,
+                               penalty_fraction = 0.1,
                                qMod = 1) {
   # check user input
   if (is.null(karyotypes) | !is.matrix(karyotypes)) {
@@ -71,9 +75,12 @@ karyotype_survival <- function(karyotypes,
       chrom_weights = chrom_weights,
       selection_mode = selection_mode,
       selection_metric = selection_metric,
-      a = a, b = b,
+      a = a, 
+      b = b,
       get_sur_probs = TRUE,
-      qMod = qMod
+      qMod = qMod,
+      monosomy_penalty = monosomy_penalty,
+      penalty_fraction = penalty_fraction
     )
 
     # check survival
