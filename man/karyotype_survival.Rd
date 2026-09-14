@@ -15,6 +15,8 @@ karyotype_survival(
   max_monosomy = NULL,
   min_euploid = NULL,
   euploid_ref = 2,
+  monosomy_penalty = FALSE,
+  penalty_fraction = 0.1,
   qMod = 1
 )
 }
@@ -39,6 +41,10 @@ karyotype_survival(
 
 \item{euploid_ref}{The euploid copy number state.}
 
+\item{monosomy_penalty}{Boolean whether to apply extra score penalty for non-modal monosomies.}
+
+\item{penalty_fraction}{Expressed as a fraction between 0 and 1, how much of the maximum possible score a non-modal monosomy takes as penalty.}
+
 \item{qMod}{A modifier for the survival probability.}
 }
 \value{
@@ -48,5 +54,5 @@ A vector of logicals whether the cells have survived or not.
 This function will determine the survival probability for a karyotype, depending on specific parameters.
 }
 \author{
-Bjorn Bakker
+Bjorn Bakker, Alex van Kaam
 }
