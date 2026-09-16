@@ -356,7 +356,9 @@ Cinsim <- function(karyotypes = NULL,
       max_monosomy = max_monosomy,
       min_euploid = min_euploid,
       euploid_ref = euploid_ref,
-      qMod = qMods["pSurvival"]
+      qMod = qMods["pSurvival"],
+      monosomy_penalty = monosomy_penalty,
+      penalty_fraction = penalty_fraction
     )
     # count the number of viable cells
     num_surviving_cells <- sum(viable_cells)
