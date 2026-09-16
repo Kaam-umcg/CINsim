@@ -351,7 +351,8 @@ Cinsim <- function(karyotypes = NULL,
       copy_num_boundaries = copy_num_boundaries,
       selection_mode = selection_mode,
       selection_metric = selection_metric,
-      a = coef$pSurvival["a"], b = coef$pSurvival["b"],
+      a = coef$pSurvival["a"], 
+      b = coef$pSurvival["b"],
       chrom_weights = chrom_weights,
       max_monosomy = max_monosomy,
       min_euploid = min_euploid,
@@ -360,6 +361,7 @@ Cinsim <- function(karyotypes = NULL,
       monosomy_penalty = monosomy_penalty,
       penalty_fraction = penalty_fraction
     )
+    
     # count the number of viable cells
     num_surviving_cells <- sum(viable_cells)
 
