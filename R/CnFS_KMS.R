@@ -60,7 +60,7 @@ the CnFS cannot be calculated. Setting CnFS to 0.")
     }
   }
   # calculates the final CnFS from the inverse
-  CnFS <- 1 / inverse_CnFS
+  CnFS <- 1 / (inverse_CnFS + 1)
   return(CnFS)
 }
 
