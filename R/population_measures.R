@@ -70,3 +70,25 @@ population_measures <- function(karyotypes = NULL, euploid_ref = 2, g = NULL) {
   # return karyotype measures
   return(pop_measures)
 }
+
+#' Calculate CIN rate from ploidy & p_misseg
+#'
+#' Calculates the inferred CIN rate from a p_misseg & ploidy of starting cell
+#'
+#' @param p_misseg the p_misseg of simulation for which CIN rate is being calculated
+#' @param ploidy ploidy of the cell - diploid = 2, tetraploid = 4
+#' @param n_chrom amount of chromosomes in the karyotype
+#' @return CIN_rate, a percentage of divisions with at least 1 missegregation
+#' @export
+#' @author Bjorn Bakker, Alex van Kaam
+calc_CIN_rate <- function(p_misseg, ploidy = 2, n_chrom = 20){
+  p_weighted <- 1 - (1 - p_misseg)^ploidy
+
+  prob_1_misseg <- 1 - stats::dbinom(
+    x = 0,
+    size = n_chrom * 2,
+    prob = p_weighted
+  )
+  CIN_rate <- prob_1_misseg * 100
+  return(CIN_rate)
+}
