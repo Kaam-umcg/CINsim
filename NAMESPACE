@@ -3,6 +3,7 @@
 export(Cinsim)
 export(Cinsim_simple)
 export(append_cinsim)
+export(calc_CIN_rate)
 export(calc_CnFS)
 export(calc_KMS)
 export(check_viability)
